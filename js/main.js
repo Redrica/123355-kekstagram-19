@@ -67,7 +67,7 @@ var generateCommentMessage = function () {
   return message;
 };
 
-// генерация уникального комментария
+// генерация объекта комментария
 var generateComment = function () {
   return {
     avatar: Picture.Comment.AVATAR_URL_SUBSTRING + getRandomNumber(Picture.Comment.AVATAR_NUMBER_MIN, Picture.Comment.AVATAR_NUMBER_MAX) + Picture.Comment.AVATAR_EXTENSION,
@@ -76,44 +76,55 @@ var generateComment = function () {
   };
 };
 
-// сбор массива комментариев дял одного фото
-var makeCommentsArray = function () {
+// сбор массива комментариев для одного фото
+var makePictureCommentsArray = function () {
   var commentsQuantity = getRandomNumber(Picture.Comment.COMMENTS_QUANTITY_MIN, Picture.Comment.COMMENTS_QUANTITY_MAX);
-  var commentsArray = [];
+  var pictureComments = [];
   for (var i = 0; i < commentsQuantity; i++) {
-    commentsArray.push(generateComment());
+    pictureComments.push(generateComment());
   }
-  return commentsArray;
+  return pictureComments;
 };
 
-// создаем массив с уникальными номерами фотографий
+// создание массива c объектами фотографий фотографий
+var generatePictures = function (quantity, numbers) {
+  var picturesObjectsArray = [];
+  for (var i = 0; i < quantity; i++) {
+    var picture = {
+      url: Picture.PICTURE_URL_SUBSTRING + numbers[i] + Picture.PICTURE_EXTENSION,
+      description: Picture.DESCRIPTION + numbers[i] + Picture.PICTURE_EXTENSION,
+      likes: getRandomNumber(Picture.LIKES_MIN, Picture.LIKES_MAX),
+      comments: makePictureCommentsArray(),
+    };
+    picturesObjectsArray.push(picture);
+  }
+  return picturesObjectsArray;
+};
+
+// создаем сущность фотографии по объекту
+var createPictureElement = function (pictureObject) {
+  var pictureElement = document.querySelector('#picture').content.querySelector('.picture').cloneNode(true);
+  pictureElement.querySelector('.picture__img').src = pictureObject.url;
+  pictureElement.querySelector('.picture__likes').textContent = pictureObject.likes;
+  pictureElement.querySelector('.picture__comments').textContent = pictureObject.comments.length + '';
+  return pictureElement;
+};
+
+// отрисовка фотографий
+var renderPictures = function (picturesObjectsArray) {
+  var picturesFragment = document.createDocumentFragment();
+  for (var i = 0; i < picturesObjectsArray.length; i++) {
+    picturesFragment.appendChild(createPictureElement(picturesObjectsArray[i]));
+  }
+  return picturesFragment;
+};
+
+// массив с уникальными номерами фотографий
 var pictureNumbers = shuffleArray(makeNumericArray(Picture.PICTURE_NUMBER_MIN, Picture.PICTURE_NUMBER_MAX));
 
-// создаем массив фотографий
-var generatePictures = function () {
-  var pictures = [];
-  for (var i = 0; i < Picture.PICTURE_NUMBER_MAX; i++) {
-    var picture = {
-      url: Picture.PICTURE_URL_SUBSTRING + pictureNumbers[i] + Picture.PICTURE_EXTENSION,
-      description: Picture.DESCRIPTION + pictureNumbers[i] + Picture.PICTURE_EXTENSION,
-      likes: getRandomNumber(Picture.LIKES_MIN, Picture.LIKES_MAX),
-      comments: makeCommentsArray(),
-    };
-    pictures.push(picture);
-  }
-  return pictures;
-};
+// итоговый массив с фотографиями для отрисовки
+var pictures = generatePictures(Picture.PICTURE_NUMBER_MAX, pictureNumbers);
 
-
-// тест массивов
-
-// var arr = [];
-// for (var i = 0; i < 100; i++) {
-//   arr.push(getRandomNumber(5, 25));
-// }
-// arr.sort(function (a, b) {
-//   return b - a;
-// });
-//
-// console.log(arr[0], arr[arr.length - 1]);
-
+// отрисовка в DOM
+var picturesPlace = document.querySelector('.pictures');
+picturesPlace.appendChild(renderPictures(pictures));
