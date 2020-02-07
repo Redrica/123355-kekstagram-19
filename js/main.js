@@ -18,6 +18,7 @@ var Picture = {
   LIKES_MIN: 15,
   LIKES_MAX: 200,
 };
+
 // Eslint: Comment is already defined as built-in (…). Не нашла Comment в списке зарезервированных слов Оо, но низя так низя.
 var UserComment = {
   AVATAR_URL_SUBSTRING: 'img/avatar-',
@@ -105,3 +106,60 @@ var pictures = generatePictures(Picture.PICTURE_NUMBER_MAX);
 // отрисовка в DOM
 var picturesPlace = document.querySelector('.pictures');
 picturesPlace.appendChild(renderPictures(pictures));
+
+// работа с fullsize изображением
+var fullPicture = document.querySelector('.big-picture');
+fullPicture.classList.remove('hidden');
+
+// функция для создания разметки одного комментария
+var createCommentLayout = function (comment) {
+  var commentFragment = document.createDocumentFragment();
+  var commentElement = document.createElement('li');
+  var commentPicture = document.createElement('img');
+  var commentText = document.createElement('p');
+
+  commentFragment.appendChild(commentElement);
+  commentElement.classList.add('social__comment');
+
+  commentElement.appendChild(commentPicture);
+  commentPicture.classList.add('social__picture');
+  commentPicture.src = comment.avatar;
+  commentPicture.alt = comment.name;
+
+  commentElement.appendChild(commentText);
+  commentText.classList.add('social__text');
+  commentText.textContent = comment.message;
+
+  return commentFragment;
+};
+
+// функция отрисовки блока комментариев
+var renderComments = function (picture) {
+  var commentsFragment = document.createDocumentFragment();
+  for (var i = 0; i < picture.comments.length; i++) {
+    commentsFragment.appendChild(createCommentLayout(picture.comments[i]));
+  }
+
+  var commentsParentElement = fullPicture.querySelector('.social__comments');
+  commentsParentElement.innerHTML = '';
+  commentsParentElement.appendChild(commentsFragment);
+};
+
+// функция отрисовки полноразмерной фотографии со всеми причитающимися.
+var renderFullPicture = function (picture) {
+  fullPicture.querySelector('.big-picture__img img').src = picture.url;
+  fullPicture.querySelector('.likes-count').textContent = picture.likes;
+  fullPicture.querySelector('.comments-count').textContent = picture.comments.length.toString();
+  fullPicture.querySelector('.social__caption').textContent = picture.description;
+
+  renderComments(picture);
+};
+
+renderFullPicture(pictures[0]);
+
+var commentCount = fullPicture.querySelector('.social__comment-count');
+var commentsLoader = fullPicture.querySelector('.comments-loader');
+commentCount.classList.add('hidden');
+commentsLoader.classList.add('hidden');
+
+document.body.classList.add('modal-open');
