@@ -162,5 +162,4 @@ var commentsLoader = fullPicture.querySelector('.comments-loader');
 commentCount.classList.add('hidden');
 commentsLoader.classList.add('hidden');
 
-var body = document.body;
-body.classList.add('modal-open');
+document.body.classList.add('modal-open');
