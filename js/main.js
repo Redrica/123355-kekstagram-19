@@ -32,6 +32,11 @@ var UserComment = {
   COMMENTS_QUANTITY_MAX: 10,
 };
 
+var Code = {
+  ENTER_KEY: 'Enter',
+  ESCAPE_KEY: 'Escape'
+};
+
 // получение случайного целого числа от min до max
 var getRandomNumber = function (max, min) {
   var minNumber = min ? min : 0;
@@ -109,7 +114,8 @@ picturesPlace.appendChild(renderPictures(pictures));
 
 // работа с fullsize изображением
 var fullPicture = document.querySelector('.big-picture');
-fullPicture.classList.remove('hidden');
+// показ полноразмерного фото, временно скрыто
+// fullPicture.classList.remove('hidden');
 
 // функция для создания разметки одного комментария
 var createCommentLayout = function (comment) {
@@ -162,4 +168,51 @@ var commentsLoader = fullPicture.querySelector('.comments-loader');
 commentCount.classList.add('hidden');
 commentsLoader.classList.add('hidden');
 
-document.body.classList.add('modal-open');
+// для показа полноразмерного фото, временно скрыто
+// document.body.classList.add('modal-open');
+
+// работа с загрузкой фотографии
+var uploadInput = document.querySelector('#upload-file');
+var imageSetup = document.querySelector('.img-upload__overlay');
+var imageSetupClose = imageSetup.querySelector('#upload-cancel');
+var hashtagInput = imageSetup.querySelector('.text__hashtags');
+
+var closeSetup = function () {
+  imageSetup.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+  uploadInput.value = '';
+  imageSetupClose.removeEventListener('click', editCloseClickHandler);
+  document.removeEventListener('keydown', setupEscKeypressHandler);
+};
+
+var editCloseClickHandler = function () {
+  closeSetup();
+};
+
+var setupEscKeypressHandler = function (evt) {
+  if (evt.key === Code.ESCAPE_KEY && document.activeElement !== hashtagInput) {
+    closeSetup();
+  }
+};
+
+var uploadInputChangeHandler = function () {
+  imageSetup.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+  imageSetupClose.addEventListener('click', editCloseClickHandler);
+  document.addEventListener('keydown', setupEscKeypressHandler);
+};
+
+uploadInput.addEventListener('change', uploadInputChangeHandler);
+
+var effectControl = imageSetup.querySelector('.effect-level__pin');
+
+var effectControlMouseupHandler = function () {
+  console.log('mouseup');
+};
+
+effectControl.addEventListener('mouseup', effectControlMouseupHandler);
+
+var effects = imageSetup.querySelectorAll('.effects__radio');
+var effectsParent = imageSetup.querySelector('.effects__list');
+
+
