@@ -204,7 +204,28 @@ var uploadInputChangeHandler = function () {
 
 uploadInput.addEventListener('change', uploadInputChangeHandler);
 
+var loadedPicture = imageSetup.querySelector('.img-upload__preview img');
+// я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
+var INITIAL__EFFECT = 'effects__preview--none';
+var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
+
+loadedPicture.classList.add(INITIAL__EFFECT);
+
 var effectControl = imageSetup.querySelector('.effect-level__pin');
+var effectsList = imageSetup.querySelector('.effects__list');
+
+var currentEffectValue = 'none';
+
+var effectListClickHandler = function (evt) {
+  if (evt.target.tagName === 'INPUT') {
+    loadedPicture.classList.remove(EFFECT_CLASS_SUBSTRING + currentEffectValue);
+    currentEffectValue = evt.target.value;
+    loadedPicture.classList.add(EFFECT_CLASS_SUBSTRING + currentEffectValue);
+  }
+};
+
+effectsList.addEventListener('click', effectListClickHandler);
+
 
 var effectControlMouseupHandler = function () {
   console.log('mouseup');
@@ -212,7 +233,7 @@ var effectControlMouseupHandler = function () {
 
 effectControl.addEventListener('mouseup', effectControlMouseupHandler);
 
-var effects = imageSetup.querySelectorAll('.effects__radio');
-var effectsParent = imageSetup.querySelector('.effects__list');
+var applyEffect = function () {
 
+};
 
