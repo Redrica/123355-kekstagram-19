@@ -206,34 +206,135 @@ uploadInput.addEventListener('change', uploadInputChangeHandler);
 
 var loadedPicture = imageSetup.querySelector('.img-upload__preview img');
 // я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
-var INITIAL__EFFECT = 'effects__preview--none';
 var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
-
-loadedPicture.classList.add(INITIAL__EFFECT);
-
-var effectControl = imageSetup.querySelector('.effect-level__pin');
+var NO_EFFECT_CLASS = 'effects__preview--none';
+var Filter = {
+  CHROME: {
+    NAME: 'chrome',
+    FILTER: 'grayscale',
+    MIN: 0,
+    MAX: 1,
+  },
+  SEPIA: {
+    NAME: 'sepia',
+    FILTER: 'sepia',
+    MIN: 0,
+    MAX: 1,
+  },
+  MARVIN: {
+    NAME: 'marvin',
+    FILTER: 'invert',
+    MIN: 0,
+    MAX: 100,
+  },
+  PHOBOS: {
+    NAME: 'phobos',
+    FILTER: 'blur',
+    MIN: 0,
+    MAX: 3,
+  },
+  HEAT: {
+    NAME: 'heat',
+    FILTER: 'brightness',
+    MIN: 1,
+    MAX: 3,
+  },
+};
+var effectLevelInterface = imageSetup.querySelector('.effect-level');
+var effectLevelFull = effectLevelInterface.querySelector('.effect-level__line');
+var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
+var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
 var effectsList = imageSetup.querySelector('.effects__list');
-
+var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
 var currentEffectValue = 'none';
+var currentEffectClass = NO_EFFECT_CLASS;
+var effect = {
+  fullValue: 0,
+  controlWidth: 0,
+  controlMinCoord: '0px',
+  controlMaxCoord: 0,
+  initial: true,
+};
+
+loadedPicture.classList.add(currentEffectClass);
+effectLevelInterface.classList.add('hidden');
+
+var changeImageEffect = function (evt) {
+  loadedPicture.classList.remove(currentEffectClass);
+  currentEffectValue = evt.target.value;
+  currentEffectClass = EFFECT_CLASS_SUBSTRING + currentEffectValue;
+  loadedPicture.classList.add(currentEffectClass);
+  loadedPicture.style.filter = '';
+};
 
 var effectListClickHandler = function (evt) {
   if (evt.target.tagName === 'INPUT') {
-    loadedPicture.classList.remove(EFFECT_CLASS_SUBSTRING + currentEffectValue);
-    currentEffectValue = evt.target.value;
-    loadedPicture.classList.add(EFFECT_CLASS_SUBSTRING + currentEffectValue);
+
+    var newEffectClass = EFFECT_CLASS_SUBSTRING + evt.target.value;
+    if (!loadedPicture.classList.contains(newEffectClass)) { // проверяем, должен ли измениться эффект, если да, то ->
+      changeImageEffect(evt);
+
+      if (newEffectClass === NO_EFFECT_CLASS) { // переключились с любого эффекта на ORIGIN, скрыли ползунок настройки
+        effectLevelInterface.classList.add('hidden');
+        effectControl.removeEventListener('mouseup', effectControlMouseupHandler);
+      } else if (effectLevelInterface.classList.contains('hidden')) { // переключились с ORIGIN на любой другой эффект, показали ползунок настройки
+        effectLevelInterface.classList.remove('hidden');
+        effectControl.addEventListener('mouseup', effectControlMouseupHandler);
+
+        if (effect.initial) {
+          getInitialEffectParams();
+        }
+        // setEffectValueToInitial(); // временно скрыто, чтобы показать обработку mouseup
+      }
+    }
   }
+};
+
+var getInitialEffectParams = function () {
+  effect.fullValue = effectLevelFull.offsetWidth;
+  effect.controlWidth = effectControl.offsetWidth;
+  effect.controlMaxCoord = effect.fullValue + 'px';
+  effect.initial = false;
+};
+
+// понадобится для установки значения ползунка при переключении эффекта
+var setEffectValueToInitial = function () {
+  effectControl.style.left = effect.controlMaxCoord;
+  effectLevelStripe.style.width = '100%';
+  // обновить значение effectLevelInput
 };
 
 effectsList.addEventListener('click', effectListClickHandler);
 
+var getCustomIntervalValue = function (minValue, maxValue, currentValue) {
+  var interval = maxValue - minValue;
+  return currentValue * interval + minValue;
+};
+
+var setEffectValue = function (effectValue) {
+  effectLevelInput.value = effectValue;
+  switch (currentEffectValue) {
+    case Filter.CHROME.NAME:
+      loadedPicture.style.filter = Filter.CHROME.FILTER + '(' + getCustomIntervalValue(Filter.CHROME.MIN, Filter.CHROME.MAX, effectValue) + ')';
+      break;
+    case Filter.SEPIA.NAME:
+      loadedPicture.style.filter = Filter.SEPIA.FILTER + '(' + getCustomIntervalValue(Filter.SEPIA.MIN, Filter.SEPIA.MAX, effectValue) + ')';
+      break;
+    case Filter.MARVIN.NAME:
+      loadedPicture.style.filter = Filter.MARVIN.FILTER + '(' + getCustomIntervalValue(Filter.MARVIN.MIN, Filter.MARVIN.MAX, effectValue) + '%)';
+      break;
+    case Filter.PHOBOS.NAME:
+      loadedPicture.style.filter = Filter.PHOBOS.FILTER + '(' + getCustomIntervalValue(Filter.PHOBOS.MIN, Filter.PHOBOS.MAX, effectValue) + 'px)';
+      break;
+    case Filter.HEAT.NAME:
+      loadedPicture.style.filter = Filter.HEAT.FILTER + '(' + getCustomIntervalValue(Filter.HEAT.MIN, Filter.HEAT.MAX, effectValue) + ')';
+      break;
+    default:
+      break;
+  }
+};
 
 var effectControlMouseupHandler = function () {
-  console.log('mouseup');
+  var controlRelativeValue = effectControl.offsetLeft / effect.fullValue;
+  setEffectValue(controlRelativeValue);
 };
-
-effectControl.addEventListener('mouseup', effectControlMouseupHandler);
-
-var applyEffect = function () {
-
-};
-
