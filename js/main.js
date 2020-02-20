@@ -172,10 +172,10 @@ commentsLoader.classList.add('hidden');
 // document.body.classList.add('modal-open');
 
 // работа с загрузкой фотографии
-var uploadInput = document.querySelector('#upload-file');
-var imageSetup = document.querySelector('.img-upload__overlay');
-var imageSetupClose = imageSetup.querySelector('#upload-cancel');
-var hashtagInput = imageSetup.querySelector('.text__hashtags');
+var uploadForm = document.querySelector('.img-upload__form');
+var uploadInput = uploadForm.querySelector('#upload-file');
+var imageSetup = uploadForm.querySelector('.img-upload__overlay');
+var imageSetupClose = uploadForm.querySelector('#upload-cancel');
 
 var closeSetup = function () {
   imageSetup.classList.add('hidden');
@@ -208,7 +208,7 @@ uploadInput.addEventListener('change', uploadInputChangeHandler);
 // фильтры на фото
 //////////////////////
 
-var loadedPicture = imageSetup.querySelector('.img-upload__preview img');
+var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
 // я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
 var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
 var NO_EFFECT_CLASS = 'effects__preview--none';
@@ -244,11 +244,11 @@ var Filter = {
     MAX: 3,
   },
 };
-var effectLevelInterface = imageSetup.querySelector('.effect-level');
+var effectLevelInterface = uploadForm.querySelector('.effect-level');
 var effectLevelFull = effectLevelInterface.querySelector('.effect-level__line');
 var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
 var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
-var effectsList = imageSetup.querySelector('.effects__list');
+var effectsList = uploadForm.querySelector('.effects__list');
 var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
 var currentEffectValue = 'none';
 var currentEffectClass = NO_EFFECT_CLASS;
@@ -368,7 +368,7 @@ var Scale = {
   STEP: 0.25,
 };
 var PERSENT_FACTOR = 100;
-var scaleInterface = imageSetup.querySelector('.scale');
+var scaleInterface = uploadForm.querySelector('.scale');
 var scaleUp = scaleInterface.querySelector('.scale__control--bigger');
 var scaleDown = scaleInterface.querySelector('.scale__control--smaller');
 var scaleInput = scaleInterface.querySelector('.scale__control--value');
@@ -400,3 +400,50 @@ scaleInterface.addEventListener('click', scaleControlsClickHandler);
 //////////////
 // валидация хэштегов
 /////////////
+var hashtagInput = uploadForm.querySelector('.text__hashtags');
+
+uploadForm.addEventListener('submit', function (evt) {
+  evt.preventDefault();
+  var hashtags = hashtagInput.value.split(/\s+/);
+
+  /**
+   1. Хэштег должен начинаться с #.
+   2. Содержит только буквы и числа.
+   3. Не может состоять только из #.
+   4. Максимальная длина 20 символов вместе с #.
+   5. Регистр не учитывается, аа === АА.
+   6. Разделены пробелами.
+   7. Не повторяются.
+   8. Максимум 5 штук.
+   9. Могут вообще отсутствовать.
+   */
+
+  var errors = 0;
+
+  if (hashtags.length > 5) {
+    // error
+  }
+
+  hashtags.forEach(function (it) {
+    if (it[0] !== '#') {
+        errors++;
+    }
+
+    if (!it.match(/#[а-я]+$/i)) {
+      console.log(it);
+
+    }
+
+    if (it.length < 2) {
+      console.log(it);
+    }
+
+    if (it.length > 20) {
+      console.log(it);
+    }
+  });
+
+  console.log(errors);
+});
+
+// #котик #синий #джинСкот
