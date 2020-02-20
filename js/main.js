@@ -204,6 +204,10 @@ var uploadInputChangeHandler = function () {
 
 uploadInput.addEventListener('change', uploadInputChangeHandler);
 
+//////////////////////
+// фильтры на фото
+//////////////////////
+
 var loadedPicture = imageSetup.querySelector('.img-upload__preview img');
 // я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
 var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
@@ -248,12 +252,13 @@ var effectsList = imageSetup.querySelector('.effects__list');
 var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
 var currentEffectValue = 'none';
 var currentEffectClass = NO_EFFECT_CLASS;
-var effect = {
+var effectInterfaceParams = {
   fullValue: 0,
   controlWidth: 0,
-  controlMinCoord: '0px',
+  CONTROL_MIN_COORD: '0px',
   controlMaxCoord: 0,
   initial: true,
+  isShown: false,
 };
 
 loadedPicture.classList.add(currentEffectClass);
@@ -273,42 +278,56 @@ var effectListClickHandler = function (evt) {
     var newEffectClass = EFFECT_CLASS_SUBSTRING + evt.target.value;
     if (!loadedPicture.classList.contains(newEffectClass)) { // проверяем, должен ли измениться эффект, если да, то ->
       changeImageEffect(evt);
-
-      if (newEffectClass === NO_EFFECT_CLASS) { // переключились с любого эффекта на ORIGIN, скрыли ползунок настройки
-        effectLevelInterface.classList.add('hidden');
-        effectControl.removeEventListener('mouseup', effectControlMouseupHandler);
-      } else if (effectLevelInterface.classList.contains('hidden')) { // переключились с ORIGIN на любой другой эффект, показали ползунок настройки
-        effectLevelInterface.classList.remove('hidden');
-        effectControl.addEventListener('mouseup', effectControlMouseupHandler);
-
-        if (effect.initial) {
-          getInitialEffectParams();
-        }
-        // setEffectValueToInitial(); // временно скрыто, чтобы показать обработку mouseup
-      }
+      handleEffectInterface(newEffectClass);
     }
   }
 };
 
-var getInitialEffectParams = function () {
-  effect.fullValue = effectLevelFull.offsetWidth;
-  effect.controlWidth = effectControl.offsetWidth;
-  effect.controlMaxCoord = effect.fullValue + 'px';
-  effect.initial = false;
+var hideEffectInterface = function () {
+  effectLevelInterface.classList.add('hidden');
+  effectControl.removeEventListener('mouseup', effectControlMouseupHandler);
+  effectInterfaceParams.isShown = false;
 };
 
-// понадобится для установки значения ползунка при переключении эффекта
+var showEffectInterface = function () {
+  effectLevelInterface.classList.remove('hidden');
+  effectControl.addEventListener('mouseup', effectControlMouseupHandler);
+  effectInterfaceParams.isShown = true;
+};
+
+var handleEffectInterface = function (effectClass) {
+  if (effectClass === NO_EFFECT_CLASS) { // переключились с любого эффекта на ORIGIN, настройки не нужны
+    hideEffectInterface();
+  } else {
+    if (!effectInterfaceParams.isShown) {
+      showEffectInterface();
+    }
+    if (effectInterfaceParams.initial && effectInterfaceParams.isShown) {
+      getInitialEffectParams();
+    }
+    // setEffectValueToInitial(); // отключено, иначе обработку mouseUp без D&D не видно
+  }
+};
+
+var getInitialEffectParams = function () {
+  effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
+  effectInterfaceParams.controlWidth = effectControl.offsetWidth;
+  effectInterfaceParams.controlMaxCoord = effectInterfaceParams.fullValue + 'px';
+  effectInterfaceParams.initial = false;
+};
+
+// понадобится для установки значения при переключении эффекта
 var setEffectValueToInitial = function () {
-  effectControl.style.left = effect.controlMaxCoord;
+  effectControl.style.left = effectInterfaceParams.controlMaxCoord;
   effectLevelStripe.style.width = '100%';
-  // обновить значение effectLevelInput
+  effectLevelInput.value = Filter[currentEffectValue.toLocaleUpperCase()].MAX;
 };
 
 effectsList.addEventListener('click', effectListClickHandler);
 
-var getCustomIntervalValue = function (minValue, maxValue, currentValue) {
+var getCustomIntervalValue = function (minValue, maxValue, fractionValue) {
   var interval = maxValue - minValue;
-  return currentValue * interval + minValue;
+  return fractionValue * interval + minValue;
 };
 
 var setEffectValue = function (effectValue) {
@@ -335,6 +354,49 @@ var setEffectValue = function (effectValue) {
 };
 
 var effectControlMouseupHandler = function () {
-  var controlRelativeValue = effectControl.offsetLeft / effect.fullValue;
-  setEffectValue(controlRelativeValue);
+  var controlFractionValue = (effectControl.offsetLeft / effectInterfaceParams.fullValue).toFixed(2);
+  setEffectValue(controlFractionValue);
 };
+
+////////////////
+// масштаб
+///////////////
+var Scale = {
+  NAME: 'scale',
+  MIN: 0.25,
+  MAX: 1,
+  STEP: 0.25,
+};
+var PERSENT_FACTOR = 100;
+var scaleInterface = imageSetup.querySelector('.scale');
+var scaleUp = scaleInterface.querySelector('.scale__control--bigger');
+var scaleDown = scaleInterface.querySelector('.scale__control--smaller');
+var scaleInput = scaleInterface.querySelector('.scale__control--value');
+var currentScale = Scale.MAX;
+
+var setScale = function (scaleValue) {
+  loadedPicture.style.transform = Scale.NAME + '(' + getCustomIntervalValue(Scale.MIN, Scale.MAX, scaleValue) + ')';
+  scaleInput.value = scaleValue * PERSENT_FACTOR + '%';
+};
+
+var countScaleValue = function (evt) {
+  if (evt.target === scaleUp && currentScale !== Scale.MAX) {
+    currentScale += Scale.STEP;
+  }
+  if (evt.target === scaleDown && currentScale !== Scale.MIN) {
+    currentScale -= Scale.STEP;
+  }
+};
+
+var scaleControlsClickHandler = function (evt) {
+  countScaleValue(evt);
+  setScale(currentScale);
+};
+
+setScale(Scale.MAX);
+
+scaleInterface.addEventListener('click', scaleControlsClickHandler);
+
+//////////////
+// валидация хэштегов
+/////////////
