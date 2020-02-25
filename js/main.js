@@ -401,49 +401,108 @@ scaleInterface.addEventListener('click', scaleControlsClickHandler);
 // валидация хэштегов
 /////////////
 var hashtagInput = uploadForm.querySelector('.text__hashtags');
+var hashtags;
+
+var checkHashSymbol = function (hashtagsArray) {
+  var missmatch = 0;
+  hashtagsArray.forEach(function (it) {
+    if (it[0] !== '#') {
+      missmatch++;
+    }
+  });
+  return missmatch;
+};
+
+var checkHashtagMinLength = function (hashtagsArray) {
+  var missmatch = 0;
+  hashtagsArray.forEach(function (it) {
+    if (it.length < 2) {
+      missmatch++;
+    }
+  });
+  return missmatch;
+};
+
+var checkHashtagMaxLength = function (hashtagsArray) {
+  var missmatch = 0;
+  hashtagsArray.forEach(function (it) {
+    if (it.length > 20) {
+      missmatch++;
+    }
+  });
+  return missmatch;
+};
+
+var checkHashtags = function () {
+  var errors = [];
+  hashtags = hashtagInput.value.split(/\s+/);
+
+  if (hashtags.length > 5) {
+    errors.push('Максимум 5 штук.');
+  }
+
+  if (checkHashSymbol(hashtags)) {
+    errors.push('Должно начинаться с #.');
+  }
+
+  if (checkHashtagMinLength(hashtags)) {
+    errors.push('Должно содержать больше одного символа.');
+  }
+
+  if (checkHashtagMaxLength(hashtags)) {
+    errors.push('Не более 20 символов.');
+  }
+
+  return errors;
+};
+
+var setErrorCondition = function (errorsArray) {
+  var errorMessage = document.createElement('p');
+  errorMessage.textContent = errorsArray.join(' ');
+  hashtagInput.parentElement.insertBefore(errorMessage, hashtagInput.nextSibling);
+
+  hashtagInput.addEventListener('focus', function () {
+    hashtagInput.parentElement.removeChild(errorMessage);
+  });
+};
 
 uploadForm.addEventListener('submit', function (evt) {
-  evt.preventDefault();
-  var hashtags = hashtagInput.value.split(/\s+/);
+  var errors = checkHashtags();
+  if (errors.length > 0) {
+    console.log(errors);
+    setErrorCondition(errors);
+    evt.preventDefault();
+  } else {
+    evt.preventDefault();
+    console.log('Все ок');
+  }
+
 
   /**
-   1. Хэштег должен начинаться с #.
+   + 1. Хэштег должен начинаться с #.
    2. Содержит только буквы и числа.
-   3. Не может состоять только из #.
-   4. Максимальная длина 20 символов вместе с #.
+   + 3. Не может состоять только из #.
+   + 4. Максимальная длина 20 символов вместе с #.
    5. Регистр не учитывается, аа === АА.
    6. Разделены пробелами.
    7. Не повторяются.
-   8. Максимум 5 штук.
+   + 8. Максимум 5 штук.
    9. Могут вообще отсутствовать.
    */
 
-  var errors = 0;
+    // if (!it.match(/#[а-я]+$/i)) {
+    //   console.log(it);
+    //
+    // }
+    //
+    // if (it.length < 2) {
+    //   console.log(it);
+    // }
+    //
+    // if (it.length > 20) {
+    //   console.log(it);
+    // }
 
-  if (hashtags.length > 5) {
-    // error
-  }
-
-  hashtags.forEach(function (it) {
-    if (it[0] !== '#') {
-        errors++;
-    }
-
-    if (!it.match(/#[а-я]+$/i)) {
-      console.log(it);
-
-    }
-
-    if (it.length < 2) {
-      console.log(it);
-    }
-
-    if (it.length > 20) {
-      console.log(it);
-    }
-  });
-
-  console.log(errors);
 });
 
 // #котик #синий #джинСкот
