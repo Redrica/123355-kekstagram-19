@@ -1443,3 +1443,12 @@ main {
     grid-row: 1 / span 3;
   }
 }
+
+/*additional*/
+.text__error {
+  width: 450px;
+  margin: -10px auto 10px;
+  text-transform: none;
+  text-align: left;
+  color: crimson;
+}

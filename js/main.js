@@ -204,9 +204,9 @@ var uploadInputChangeHandler = function () {
 
 uploadInput.addEventListener('change', uploadInputChangeHandler);
 
-//////////////////////
+// ////////////////////
 // фильтры на фото
-//////////////////////
+// ////////////////////
 
 var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
 // я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
@@ -247,7 +247,7 @@ var Filter = {
 var effectLevelInterface = uploadForm.querySelector('.effect-level');
 var effectLevelFull = effectLevelInterface.querySelector('.effect-level__line');
 var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
-var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
+// var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
 var effectsList = uploadForm.querySelector('.effects__list');
 var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
 var currentEffectValue = 'none';
@@ -317,11 +317,11 @@ var getInitialEffectParams = function () {
 };
 
 // понадобится для установки значения при переключении эффекта
-var setEffectValueToInitial = function () {
-  effectControl.style.left = effectInterfaceParams.controlMaxCoord;
-  effectLevelStripe.style.width = '100%';
-  effectLevelInput.value = Filter[currentEffectValue.toLocaleUpperCase()].MAX;
-};
+// var setEffectValueToInitial = function () {
+//   effectControl.style.left = effectInterfaceParams.controlMaxCoord;
+//   effectLevelStripe.style.width = '100%';
+//   effectLevelInput.value = Filter[currentEffectValue.toLocaleUpperCase()].MAX;
+// };
 
 effectsList.addEventListener('click', effectListClickHandler);
 
@@ -358,9 +358,9 @@ var effectControlMouseupHandler = function () {
   setEffectValue(controlFractionValue);
 };
 
-////////////////
+// //////////////
 // масштаб
-///////////////
+// /////////////
 var Scale = {
   NAME: 'scale',
   MIN: 0.25,
@@ -397,112 +397,171 @@ setScale(Scale.MAX);
 
 scaleInterface.addEventListener('click', scaleControlsClickHandler);
 
-//////////////
+// ////////////
 // валидация хэштегов
-/////////////
+// ///////////
+
+var ErrorMessage = {
+  QUANTITY_LIMIT: 'Можно задать не более пяти хэштегов.', // доработать на расчет кол-ва, т.к  может быть другое ограничение?
+  FIRST_SYMBOL: 'Первый символ должен быть #.',
+  MIN_LENGTH: 'Должно быть больше одного символа.',
+  MAX_LENGTH: 'Длина не более 20 символов.',
+  INCORRECT_SYMBOL: 'Может включать только буквы и цифры.',
+  NO_REPETITION: 'Значения не должны повторяться.',
+};
+
+var HashStingParam = {
+  MIN_LENGTH: 2,
+  MAX_LENGTH: 20,
+  QUANTITY_LIMIT: 5,
+};
+
 var hashtagInput = uploadForm.querySelector('.text__hashtags');
 var hashtags;
+var errors = [];
+var errorMessage;
+var isErrorMessage = false;
+
+var getValuesArray = function (input) {
+  input.value = input.value.trim();
+  if (input.value === '') {
+    return [];
+  }
+  return input.value.toLowerCase().split(/\s+/);
+};
 
 var checkHashSymbol = function (hashtagsArray) {
   var missmatch = 0;
-  hashtagsArray.forEach(function (it) {
-    if (it[0] !== '#') {
+  for (var i = 0; i < hashtagsArray.length; i++) {
+    if (hashtagsArray[i][0] !== '#') {
       missmatch++;
+      break;
     }
-  });
+  }
   return missmatch;
 };
 
 var checkHashtagMinLength = function (hashtagsArray) {
   var missmatch = 0;
-  hashtagsArray.forEach(function (it) {
-    if (it.length < 2) {
+  for (var i = 0; i < hashtagsArray.length; i++) {
+    if (hashtagsArray[i].length < HashStingParam.MIN_LENGTH && hashtagsArray[i][0] === '#') {
       missmatch++;
+      break;
     }
-  });
+  }
   return missmatch;
 };
 
 var checkHashtagMaxLength = function (hashtagsArray) {
   var missmatch = 0;
-  hashtagsArray.forEach(function (it) {
-    if (it.length > 20) {
+  for (var i = 0; i < hashtagsArray.length; i++) {
+    if (hashtagsArray[i].length > HashStingParam.MAX_LENGTH) {
       missmatch++;
+      break;
     }
-  });
+  }
   return missmatch;
 };
 
-var checkHashtags = function () {
-  var errors = [];
-  hashtags = hashtagInput.value.split(/\s+/);
-
-  if (hashtags.length > 5) {
-    errors.push('Максимум 5 штук.');
+var checkCorrectSymbols = function (hashtagsArray) {
+  var missmatch = 0;
+  for (var i = 0; i < hashtagsArray.length; i++) {
+    if (!hashtagsArray[i].match(/^#[а-яёa-z\d]+$/)) {
+      missmatch++;
+      break;
+    }
   }
-
-  if (checkHashSymbol(hashtags)) {
-    errors.push('Должно начинаться с #.');
-  }
-
-  if (checkHashtagMinLength(hashtags)) {
-    errors.push('Должно содержать больше одного символа.');
-  }
-
-  if (checkHashtagMaxLength(hashtags)) {
-    errors.push('Не более 20 символов.');
-  }
-
-  return errors;
+  return missmatch;
 };
 
-var setErrorCondition = function (errorsArray) {
-  var errorMessage = document.createElement('p');
-  errorMessage.textContent = errorsArray.join(' ');
+var checkRepetiion = function (hashtagsArray) {
+  var missmatch = 0;
+  for (var i = 0; i < hashtagsArray.length; i++) {
+    if (hashtagsArray.indexOf(hashtagsArray[i], i + 1) > 0) {
+      missmatch++;
+      break;
+    }
+  }
+  return missmatch;
+};
+
+var checkHashtags = function (hashtagsArray) {
+  if (hashtagsArray) {
+    if (hashtagsArray.length > HashStingParam.QUANTITY_LIMIT) {
+      errors.push(ErrorMessage.QUANTITY_LIMIT);
+    }
+
+    if (checkHashSymbol(hashtagsArray)) {
+      errors.push(ErrorMessage.FIRST_SYMBOL);
+    }
+
+    if (checkHashtagMinLength(hashtagsArray)) {
+      errors.push(ErrorMessage.MIN_LENGTH);
+    }
+
+    if (checkHashtagMaxLength(hashtagsArray)) {
+      errors.push(ErrorMessage.MAX_LENGTH);
+    }
+
+    if (checkCorrectSymbols(hashtagsArray)) {
+      errors.push(ErrorMessage.INCORRECT_SYMBOL);
+    }
+
+    if (checkRepetiion(hashtagsArray)) {
+      errors.push(ErrorMessage.NO_REPETITION);
+    }
+  }
+};
+
+var createErrorMessage = function () {
+  errorMessage = document.createElement('p');
+  errorMessage.classList.add('text__error');
   hashtagInput.parentElement.insertBefore(errorMessage, hashtagInput.nextSibling);
-
-  hashtagInput.addEventListener('focus', function () {
-    hashtagInput.parentElement.removeChild(errorMessage);
-  });
 };
 
-uploadForm.addEventListener('submit', function (evt) {
-  var errors = checkHashtags();
+var setErrorCondition = function () {
+  if (!isErrorMessage) {
+    createErrorMessage();
+    isErrorMessage = true;
+  }
+  errorMessage.textContent = errors.join(' ');
+};
+
+var cleanErrors = function () {
+  errors = [];
+  errorMessage.textContent = '';
+};
+
+var inputFocusHandler = function () {
+  cleanErrors();
+};
+
+var submitFormHandler = function (evt) {
   if (errors.length > 0) {
-    console.log(errors);
-    setErrorCondition(errors);
-    evt.preventDefault();
-  } else {
-    evt.preventDefault();
-    console.log('Все ок');
+    cleanErrors();
   }
 
+  hashtags = getValuesArray(hashtagInput);
+  checkHashtags(hashtags);
+  if (errors.length > 0) {
+    setErrorCondition();
+    evt.preventDefault();
+    hashtagInput.addEventListener('focus', inputFocusHandler);
+  }
+};
 
-  /**
-   + 1. Хэштег должен начинаться с #.
-   2. Содержит только буквы и числа.
-   + 3. Не может состоять только из #.
-   + 4. Максимальная длина 20 символов вместе с #.
-   5. Регистр не учитывается, аа === АА.
-   6. Разделены пробелами.
-   7. Не повторяются.
-   + 8. Максимум 5 штук.
-   9. Могут вообще отсутствовать.
-   */
+uploadForm.addEventListener('submit', submitFormHandler);
 
-    // if (!it.match(/#[а-я]+$/i)) {
-    //   console.log(it);
-    //
-    // }
-    //
-    // if (it.length < 2) {
-    //   console.log(it);
-    // }
-    //
-    // if (it.length > 20) {
-    //   console.log(it);
-    // }
-
-});
+/**
+ + 1. Хэштег должен начинаться с #.
+ + 2. Содержит только буквы и числа.
+ + 3. Не может состоять только из #.
+ + 4. Максимальная длина 20 символов вместе с #.
+ + 5. Регистр не учитывается, аа === АА.
+ + 6. Разделены пробелами. Любым количеством!
+ + 7. Не повторяются.
+ + 8. Максимум 5 штук.
+ + 9. Могут вообще отсутствовать.
+ */
 
 // #котик #синий #джинСкот
