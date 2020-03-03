@@ -213,35 +213,40 @@ var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
 var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
 var NO_EFFECT_CLASS = 'effects__preview--none';
 var Filter = {
-  CHROME: {
+  chrome: {
     NAME: 'chrome',
     FILTER: 'grayscale',
     MIN: 0,
     MAX: 1,
+    UNIT: '',
   },
-  SEPIA: {
+  sepia: {
     NAME: 'sepia',
     FILTER: 'sepia',
     MIN: 0,
     MAX: 1,
+    UNIT: '',
   },
-  MARVIN: {
+  marvin: {
     NAME: 'marvin',
     FILTER: 'invert',
     MIN: 0,
     MAX: 100,
+    UNIT: '%',
   },
-  PHOBOS: {
+  phobos: {
     NAME: 'phobos',
     FILTER: 'blur',
     MIN: 0,
     MAX: 3,
+    UNIT: 'px',
   },
-  HEAT: {
+  heat: {
     NAME: 'heat',
     FILTER: 'brightness',
     MIN: 1,
     MAX: 3,
+    UNIT: '',
   },
 };
 var effectLevelInterface = uploadForm.querySelector('.effect-level');
@@ -264,6 +269,7 @@ var effectInterfaceParams = {
 loadedPicture.classList.add(currentEffectClass);
 effectLevelInterface.classList.add('hidden');
 
+// функция, применяющая эффект при выборе фильтра
 var changeImageEffect = function (evt) {
   loadedPicture.classList.remove(currentEffectClass);
   currentEffectValue = evt.target.value;
@@ -272,6 +278,7 @@ var changeImageEffect = function (evt) {
   loadedPicture.style.filter = '';
 };
 
+// функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного "что-то" сделать с контролом уровня.
 var effectListClickHandler = function (evt) {
   if (evt.target.tagName === 'INPUT') {
 
@@ -295,6 +302,7 @@ var showEffectInterface = function () {
   effectInterfaceParams.isShown = true;
 };
 
+// функция, обрабатывающая поведение контрола уровня эффекта
 var handleEffectInterface = function (effectClass) {
   if (effectClass === NO_EFFECT_CLASS) { // переключились с любого эффекта на ORIGIN, настройки не нужны
     hideEffectInterface();
@@ -325,32 +333,42 @@ var getInitialEffectParams = function () {
 
 effectsList.addEventListener('click', effectListClickHandler);
 
+// функция, возвращающая пропорциональное значение в заданном интервале
 var getCustomIntervalValue = function (minValue, maxValue, fractionValue) {
   var interval = maxValue - minValue;
   return fractionValue * interval + minValue;
 };
 
+// функция, возвращающая строку для записи в style картинки
+var getStyleFilterRule = function (filter, effectValue) {
+  return filter.FILTER + '(' + getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT +')';
+};
+
 var setEffectValue = function (effectValue) {
+  // записываем значение в input для отправки
   effectLevelInput.value = effectValue;
-  switch (currentEffectValue) {
-    case Filter.CHROME.NAME:
-      loadedPicture.style.filter = Filter.CHROME.FILTER + '(' + getCustomIntervalValue(Filter.CHROME.MIN, Filter.CHROME.MAX, effectValue) + ')';
-      break;
-    case Filter.SEPIA.NAME:
-      loadedPicture.style.filter = Filter.SEPIA.FILTER + '(' + getCustomIntervalValue(Filter.SEPIA.MIN, Filter.SEPIA.MAX, effectValue) + ')';
-      break;
-    case Filter.MARVIN.NAME:
-      loadedPicture.style.filter = Filter.MARVIN.FILTER + '(' + getCustomIntervalValue(Filter.MARVIN.MIN, Filter.MARVIN.MAX, effectValue) + '%)';
-      break;
-    case Filter.PHOBOS.NAME:
-      loadedPicture.style.filter = Filter.PHOBOS.FILTER + '(' + getCustomIntervalValue(Filter.PHOBOS.MIN, Filter.PHOBOS.MAX, effectValue) + 'px)';
-      break;
-    case Filter.HEAT.NAME:
-      loadedPicture.style.filter = Filter.HEAT.FILTER + '(' + getCustomIntervalValue(Filter.HEAT.MIN, Filter.HEAT.MAX, effectValue) + ')';
-      break;
-    default:
-      break;
-  }
+  var currentFilter = document.querySelector('.effects__radio:checked').value;
+  loadedPicture.style.filter = getStyleFilterRule(Filter[currentFilter], effectValue);
+  // устранавливаем значение в style
+  // switch (currentEffectValue) {
+  //   case Filter.CHROME.NAME:
+  //     loadedPicture.style.filter = Filter.CHROME.FILTER + '(' + getCustomIntervalValue(Filter.CHROME.MIN, Filter.CHROME.MAX, effectValue) + ')';
+  //     break;
+  //   case Filter.SEPIA.NAME:
+  //     loadedPicture.style.filter = Filter.SEPIA.FILTER + '(' + getCustomIntervalValue(Filter.SEPIA.MIN, Filter.SEPIA.MAX, effectValue) + ')';
+  //     break;
+  //   case Filter.MARVIN.NAME:
+  //     loadedPicture.style.filter = Filter.MARVIN.FILTER + '(' + getCustomIntervalValue(Filter.MARVIN.MIN, Filter.MARVIN.MAX, effectValue) + '%)';
+  //     break;
+  //   case Filter.PHOBOS.NAME:
+  //     loadedPicture.style.filter = Filter.PHOBOS.FILTER + '(' + getCustomIntervalValue(Filter.PHOBOS.MIN, Filter.PHOBOS.MAX, effectValue) + 'px)';
+  //     break;
+  //   case Filter.HEAT.NAME:
+  //     loadedPicture.style.filter = Filter.HEAT.FILTER + '(' + getCustomIntervalValue(Filter.HEAT.MIN, Filter.HEAT.MAX, effectValue) + ')';
+  //     break;
+  //   default:
+  //     break;
+  // }
 };
 
 var effectControlMouseupHandler = function () {
