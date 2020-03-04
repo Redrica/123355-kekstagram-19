@@ -263,7 +263,6 @@ var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
 // var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
 var effectsList = uploadForm.querySelector('.effects__list');
 var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
-//var currentEffectValue = 'none';
 var effectInterfaceParams = {
   fullValue: 0,
   controlWidth: 0,
@@ -349,7 +348,7 @@ function getCustomIntervalValue(minValue, maxValue, fractionValue) {
 
 // функция, возвращающая строку для записи в style картинки
 function getStyleFilterRule(filter, effectValue) {
-  return filter.FILTER + '(' + getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT +')';
+  return filter.FILTER + '(' + getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT + ')';
 }
 
 function setEffectValue(effectValue) {
