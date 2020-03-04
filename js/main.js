@@ -177,30 +177,38 @@ var uploadInput = uploadForm.querySelector('#upload-file');
 var imageSetup = uploadForm.querySelector('.img-upload__overlay');
 var imageSetupClose = uploadForm.querySelector('#upload-cancel');
 
-var closeSetup = function () {
+function setSetupToInitial() {
+  uploadInput.value = '';
+  hashtagInput.value = '';
+  descriptionInput.value = '';
+  // TODO: доработать установку начального эффекта при закрытии окна без отправки формы. setEffectValueToInitial()+
+}
+
+function closeSetup() {
   imageSetup.classList.add('hidden');
   document.body.classList.remove('modal-open');
-  uploadInput.value = '';
   imageSetupClose.removeEventListener('click', editCloseClickHandler);
   document.removeEventListener('keydown', setupEscKeypressHandler);
-};
+  cleanError();
+  setSetupToInitial();
+}
 
-var editCloseClickHandler = function () {
+function editCloseClickHandler() {
   closeSetup();
-};
+}
 
-var setupEscKeypressHandler = function (evt) {
+function setupEscKeypressHandler(evt) {
   if (evt.key === Code.ESCAPE_KEY && document.activeElement !== hashtagInput) {
     closeSetup();
   }
-};
+}
 
-var uploadInputChangeHandler = function () {
+function uploadInputChangeHandler() {
   imageSetup.classList.remove('hidden');
   document.body.classList.add('modal-open');
   imageSetupClose.addEventListener('click', editCloseClickHandler);
   document.addEventListener('keydown', setupEscKeypressHandler);
-};
+}
 
 uploadInput.addEventListener('change', uploadInputChangeHandler);
 
@@ -270,16 +278,16 @@ loadedPicture.classList.add(currentEffectClass);
 effectLevelInterface.classList.add('hidden');
 
 // функция, применяющая эффект при выборе фильтра
-var changeImageEffect = function (evt) {
+function changeImageEffect(evt) {
   loadedPicture.classList.remove(currentEffectClass);
   currentEffectValue = evt.target.value;
   currentEffectClass = EFFECT_CLASS_SUBSTRING + currentEffectValue;
   loadedPicture.classList.add(currentEffectClass);
   loadedPicture.style.filter = '';
-};
+}
 
 // функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного "что-то" сделать с контролом уровня.
-var effectListClickHandler = function (evt) {
+function effectListClickHandler(evt) {
   if (evt.target.tagName === 'INPUT') {
 
     var newEffectClass = EFFECT_CLASS_SUBSTRING + evt.target.value;
@@ -288,22 +296,22 @@ var effectListClickHandler = function (evt) {
       handleEffectInterface(newEffectClass);
     }
   }
-};
+}
 
-var hideEffectInterface = function () {
+function hideEffectInterface() {
   effectLevelInterface.classList.add('hidden');
   effectControl.removeEventListener('mouseup', effectControlMouseupHandler);
   effectInterfaceParams.isShown = false;
-};
+}
 
-var showEffectInterface = function () {
+function showEffectInterface() {
   effectLevelInterface.classList.remove('hidden');
   effectControl.addEventListener('mouseup', effectControlMouseupHandler);
   effectInterfaceParams.isShown = true;
-};
+}
 
 // функция, обрабатывающая поведение контрола уровня эффекта
-var handleEffectInterface = function (effectClass) {
+function handleEffectInterface(effectClass) {
   if (effectClass === NO_EFFECT_CLASS) { // переключились с любого эффекта на ORIGIN, настройки не нужны
     hideEffectInterface();
   } else {
@@ -315,14 +323,14 @@ var handleEffectInterface = function (effectClass) {
     }
     // setEffectValueToInitial(); // отключено, иначе обработку mouseUp без D&D не видно
   }
-};
+}
 
-var getInitialEffectParams = function () {
+function getInitialEffectParams () {
   effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
   effectInterfaceParams.controlWidth = effectControl.offsetWidth;
   effectInterfaceParams.controlMaxCoord = effectInterfaceParams.fullValue + 'px';
   effectInterfaceParams.initial = false;
-};
+}
 
 // понадобится для установки значения при переключении эффекта
 // var setEffectValueToInitial = function () {
@@ -334,47 +342,27 @@ var getInitialEffectParams = function () {
 effectsList.addEventListener('click', effectListClickHandler);
 
 // функция, возвращающая пропорциональное значение в заданном интервале
-var getCustomIntervalValue = function (minValue, maxValue, fractionValue) {
+function getCustomIntervalValue(minValue, maxValue, fractionValue) {
   var interval = maxValue - minValue;
   return fractionValue * interval + minValue;
-};
+}
 
 // функция, возвращающая строку для записи в style картинки
-var getStyleFilterRule = function (filter, effectValue) {
+function getStyleFilterRule(filter, effectValue) {
   return filter.FILTER + '(' + getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT +')';
-};
+}
 
-var setEffectValue = function (effectValue) {
+function setEffectValue(effectValue) {
   // записываем значение в input для отправки
   effectLevelInput.value = effectValue;
   var currentFilter = document.querySelector('.effects__radio:checked').value;
   loadedPicture.style.filter = getStyleFilterRule(Filter[currentFilter], effectValue);
-  // устранавливаем значение в style
-  // switch (currentEffectValue) {
-  //   case Filter.CHROME.NAME:
-  //     loadedPicture.style.filter = Filter.CHROME.FILTER + '(' + getCustomIntervalValue(Filter.CHROME.MIN, Filter.CHROME.MAX, effectValue) + ')';
-  //     break;
-  //   case Filter.SEPIA.NAME:
-  //     loadedPicture.style.filter = Filter.SEPIA.FILTER + '(' + getCustomIntervalValue(Filter.SEPIA.MIN, Filter.SEPIA.MAX, effectValue) + ')';
-  //     break;
-  //   case Filter.MARVIN.NAME:
-  //     loadedPicture.style.filter = Filter.MARVIN.FILTER + '(' + getCustomIntervalValue(Filter.MARVIN.MIN, Filter.MARVIN.MAX, effectValue) + '%)';
-  //     break;
-  //   case Filter.PHOBOS.NAME:
-  //     loadedPicture.style.filter = Filter.PHOBOS.FILTER + '(' + getCustomIntervalValue(Filter.PHOBOS.MIN, Filter.PHOBOS.MAX, effectValue) + 'px)';
-  //     break;
-  //   case Filter.HEAT.NAME:
-  //     loadedPicture.style.filter = Filter.HEAT.FILTER + '(' + getCustomIntervalValue(Filter.HEAT.MIN, Filter.HEAT.MAX, effectValue) + ')';
-  //     break;
-  //   default:
-  //     break;
-  // }
-};
+}
 
-var effectControlMouseupHandler = function () {
+function effectControlMouseupHandler() {
   var controlFractionValue = (effectControl.offsetLeft / effectInterfaceParams.fullValue).toFixed(2);
   setEffectValue(controlFractionValue);
-};
+}
 
 // //////////////
 // масштаб
@@ -392,24 +380,24 @@ var scaleDown = scaleInterface.querySelector('.scale__control--smaller');
 var scaleInput = scaleInterface.querySelector('.scale__control--value');
 var currentScale = Scale.MAX;
 
-var setScale = function (scaleValue) {
+function setScale(scaleValue) {
   loadedPicture.style.transform = Scale.NAME + '(' + getCustomIntervalValue(Scale.MIN, Scale.MAX, scaleValue) + ')';
   scaleInput.value = scaleValue * PERSENT_FACTOR + '%';
-};
+}
 
-var countScaleValue = function (evt) {
+function countScaleValue(evt) {
   if (evt.target === scaleUp && currentScale !== Scale.MAX) {
     currentScale += Scale.STEP;
   }
   if (evt.target === scaleDown && currentScale !== Scale.MIN) {
     currentScale -= Scale.STEP;
   }
-};
+}
 
-var scaleControlsClickHandler = function (evt) {
+function scaleControlsClickHandler(evt) {
   countScaleValue(evt);
   setScale(currentScale);
-};
+}
 
 setScale(Scale.MAX);
 
@@ -435,55 +423,53 @@ var HashStingParam = {
 };
 
 var hashtagInput = uploadForm.querySelector('.text__hashtags');
-// TODO: избавиться от errorMessage в ГО.
-var errorMessage;
-var isErrorMessage = false;
+var descriptionInput = uploadForm.querySelector('.text__description');
 
-var getValuesArray = function (input) {
+function getValuesArray(input) {
   input.value = input.value.trim();
   if (input.value === '') {
     return [];
   }
   return input.value.toLowerCase().split(/\s+/);
-};
+}
 
-var addError = function (errorsArray, error) {
+function addError(errorsArray, error) {
   if (errorsArray.indexOf(error) === -1) {
     errorsArray.push(error);
   }
-};
+}
 
-var checkHashSymbol = function (hashtag, errorsArray) {
+function checkHashSymbol(hashtag, errorsArray) {
   if (hashtag[0] !== '#') {
     addError(errorsArray, ErrorMessage.FIRST_SYMBOL);
   }
-};
+}
 
-var checkHashtagMinLength = function (hashtag, errorsArray) {
+function checkHashtagMinLength(hashtag, errorsArray) {
   if (hashtag.length < HashStingParam.MIN_LENGTH && hashtag[0] === '#') {
     addError(errorsArray, ErrorMessage.MIN_LENGTH);
   }
-};
+}
 
-var checkHashtagMaxLength = function (hashtag, errorsArray) {
+function checkHashtagMaxLength(hashtag, errorsArray) {
   if (hashtag.length > HashStingParam.MAX_LENGTH) {
     addError(errorsArray, ErrorMessage.MAX_LENGTH);
   }
-};
+}
 
-var checkCorrectSymbols = function (hashtag, errorsArray) {
-  if (!hashtag.match(/^#[а-яёa-z\d]+$/)) {
+function checkCorrectSymbols(hashtag, errorsArray) {
+  if (!hashtag.match(/^#?[а-яёa-z\d]+$/)) {
     addError(errorsArray, ErrorMessage.INCORRECT_SYMBOL);
   }
-};
+}
 
-var checkRepetiion = function (hashtag, errorsArray, hashtagsArray, currentIndex) {
+function checkRepetiion(hashtag, errorsArray, hashtagsArray, currentIndex) {
   if (hashtagsArray.indexOf(hashtag, currentIndex + 1) > 0) {
     addError(errorsArray, ErrorMessage.NO_REPETITION);
   }
-};
+}
 
-var checkHashtags = function (hashtagsArray) {
+function checkHashtags(hashtagsArray) {
   var errors = [];
   if (hashtagsArray.length > 0) {
     if (hashtagsArray.length > HashStingParam.QUANTITY_LIMIT) {
@@ -499,27 +485,34 @@ var checkHashtags = function (hashtagsArray) {
     });
   }
   return errors;
-};
+}
 
-var createErrorMessage = function () {
-  errorMessage = document.createElement('p');
+function createErrorMessage() {
+  var errorMessage = document.createElement('p');
   errorMessage.classList.add('text__error');
   hashtagInput.parentElement.insertBefore(errorMessage, hashtagInput.nextSibling);
-};
+}
 
-var setErrorCondition = function (errors) {
-  if (!isErrorMessage) {
+function setErrorCondition(errors) {
+  if (!document.querySelector('.text__error')) {
     createErrorMessage();
-    isErrorMessage = true;
   }
+  var errorMessage = document.querySelector('.text__error');
   errorMessage.textContent = errors.join(' ');
-};
+}
 
-var inputFocusHandler = function () {
-  errorMessage.textContent = '';
-};
+function cleanError() {
+  var errorMessage = document.querySelector('.text__error');
+  if (errorMessage) {
+    errorMessage.textContent = '';
+  }
+}
 
-var submitFormHandler = function (evt) {
+function inputFocusHandler() {
+  cleanError();
+}
+
+function submitFormHandler(evt) {
   var hashtags = getValuesArray(hashtagInput);
   var errors = checkHashtags(hashtags);
 
@@ -531,7 +524,7 @@ var submitFormHandler = function (evt) {
     evt.preventDefault();
     console.log('Все ок!');
   }
-};
+}
 
 uploadForm.addEventListener('submit', submitFormHandler);
 
