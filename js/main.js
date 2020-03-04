@@ -435,8 +435,7 @@ var HashStingParam = {
 };
 
 var hashtagInput = uploadForm.querySelector('.text__hashtags');
-var hashtags;
-var errors = [];
+// TODO: избавиться от errorMessage в ГО.
 var errorMessage;
 var isErrorMessage = false;
 
@@ -448,87 +447,58 @@ var getValuesArray = function (input) {
   return input.value.toLowerCase().split(/\s+/);
 };
 
-var checkHashSymbol = function (hashtagsArray) {
-  var missmatch = 0;
-  for (var i = 0; i < hashtagsArray.length; i++) {
-    if (hashtagsArray[i][0] !== '#') {
-      missmatch++;
-      break;
-    }
+var addError = function (errorsArray, error) {
+  if (errorsArray.indexOf(error) === -1) {
+    errorsArray.push(error);
   }
-  return missmatch;
 };
 
-var checkHashtagMinLength = function (hashtagsArray) {
-  var missmatch = 0;
-  for (var i = 0; i < hashtagsArray.length; i++) {
-    if (hashtagsArray[i].length < HashStingParam.MIN_LENGTH && hashtagsArray[i][0] === '#') {
-      missmatch++;
-      break;
-    }
+var checkHashSymbol = function (hashtag, errorsArray) {
+  if (hashtag[0] !== '#') {
+    addError(errorsArray, ErrorMessage.FIRST_SYMBOL);
   }
-  return missmatch;
 };
 
-var checkHashtagMaxLength = function (hashtagsArray) {
-  var missmatch = 0;
-  for (var i = 0; i < hashtagsArray.length; i++) {
-    if (hashtagsArray[i].length > HashStingParam.MAX_LENGTH) {
-      missmatch++;
-      break;
-    }
+var checkHashtagMinLength = function (hashtag, errorsArray) {
+  if (hashtag.length < HashStingParam.MIN_LENGTH && hashtag[0] === '#') {
+    addError(errorsArray, ErrorMessage.MIN_LENGTH);
   }
-  return missmatch;
 };
 
-var checkCorrectSymbols = function (hashtagsArray) {
-  var missmatch = 0;
-  for (var i = 0; i < hashtagsArray.length; i++) {
-    if (!hashtagsArray[i].match(/^#[а-яёa-z\d]+$/)) {
-      missmatch++;
-      break;
-    }
+var checkHashtagMaxLength = function (hashtag, errorsArray) {
+  if (hashtag.length > HashStingParam.MAX_LENGTH) {
+    addError(errorsArray, ErrorMessage.MAX_LENGTH);
   }
-  return missmatch;
 };
 
-var checkRepetiion = function (hashtagsArray) {
-  var missmatch = 0;
-  for (var i = 0; i < hashtagsArray.length; i++) {
-    if (hashtagsArray.indexOf(hashtagsArray[i], i + 1) > 0) {
-      missmatch++;
-      break;
-    }
+var checkCorrectSymbols = function (hashtag, errorsArray) {
+  if (!hashtag.match(/^#[а-яёa-z\d]+$/)) {
+    addError(errorsArray, ErrorMessage.INCORRECT_SYMBOL);
   }
-  return missmatch;
+};
+
+var checkRepetiion = function (hashtag, errorsArray, hashtagsArray, currentIndex) {
+  if (hashtagsArray.indexOf(hashtag, currentIndex + 1) > 0) {
+    addError(errorsArray, ErrorMessage.NO_REPETITION);
+  }
 };
 
 var checkHashtags = function (hashtagsArray) {
-  if (hashtagsArray) {
+  var errors = [];
+  if (hashtagsArray.length > 0) {
     if (hashtagsArray.length > HashStingParam.QUANTITY_LIMIT) {
       errors.push(ErrorMessage.QUANTITY_LIMIT);
     }
 
-    if (checkHashSymbol(hashtagsArray)) {
-      errors.push(ErrorMessage.FIRST_SYMBOL);
-    }
-
-    if (checkHashtagMinLength(hashtagsArray)) {
-      errors.push(ErrorMessage.MIN_LENGTH);
-    }
-
-    if (checkHashtagMaxLength(hashtagsArray)) {
-      errors.push(ErrorMessage.MAX_LENGTH);
-    }
-
-    if (checkCorrectSymbols(hashtagsArray)) {
-      errors.push(ErrorMessage.INCORRECT_SYMBOL);
-    }
-
-    if (checkRepetiion(hashtagsArray)) {
-      errors.push(ErrorMessage.NO_REPETITION);
-    }
+    hashtagsArray.forEach(function (it, index, array) {
+      checkHashSymbol(it, errors);
+      checkHashtagMinLength(it, errors);
+      checkHashtagMaxLength(it, errors);
+      checkCorrectSymbols(it, errors);
+      checkRepetiion(it, errors, array, index);
+    });
   }
+  return errors;
 };
 
 var createErrorMessage = function () {
@@ -537,7 +507,7 @@ var createErrorMessage = function () {
   hashtagInput.parentElement.insertBefore(errorMessage, hashtagInput.nextSibling);
 };
 
-var setErrorCondition = function () {
+var setErrorCondition = function (errors) {
   if (!isErrorMessage) {
     createErrorMessage();
     isErrorMessage = true;
@@ -545,26 +515,21 @@ var setErrorCondition = function () {
   errorMessage.textContent = errors.join(' ');
 };
 
-var cleanErrors = function () {
-  errors = [];
+var inputFocusHandler = function () {
   errorMessage.textContent = '';
 };
 
-var inputFocusHandler = function () {
-  cleanErrors();
-};
-
 var submitFormHandler = function (evt) {
-  if (errors.length > 0) {
-    cleanErrors();
-  }
+  var hashtags = getValuesArray(hashtagInput);
+  var errors = checkHashtags(hashtags);
 
-  hashtags = getValuesArray(hashtagInput);
-  checkHashtags(hashtags);
   if (errors.length > 0) {
-    setErrorCondition();
+    setErrorCondition(errors);
     evt.preventDefault();
     hashtagInput.addEventListener('focus', inputFocusHandler);
+  } else {
+    evt.preventDefault();
+    console.log('Все ок!');
   }
 };
 
@@ -583,4 +548,3 @@ uploadForm.addEventListener('submit', submitFormHandler);
  */
 
 // #котик #синий #джинСкот
-// test
