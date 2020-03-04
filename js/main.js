@@ -378,7 +378,6 @@ var scaleInterface = uploadForm.querySelector('.scale');
 var scaleUp = scaleInterface.querySelector('.scale__control--bigger');
 var scaleDown = scaleInterface.querySelector('.scale__control--smaller');
 var scaleInput = scaleInterface.querySelector('.scale__control--value');
-var currentScale = Scale.MAX;
 
 function setScale(scaleValue) {
   loadedPicture.style.transform = Scale.NAME + '(' + getCustomIntervalValue(Scale.MIN, Scale.MAX, scaleValue) + ')';
@@ -386,16 +385,18 @@ function setScale(scaleValue) {
 }
 
 function countScaleValue(evt) {
+  var currentScale = scaleInput.value.slice(0, (scaleInput.value.length - 1)) / PERSENT_FACTOR;
   if (evt.target === scaleUp && currentScale !== Scale.MAX) {
     currentScale += Scale.STEP;
   }
   if (evt.target === scaleDown && currentScale !== Scale.MIN) {
     currentScale -= Scale.STEP;
   }
+  return currentScale;
 }
 
 function scaleControlsClickHandler(evt) {
-  countScaleValue(evt);
+  var currentScale = countScaleValue(evt);
   setScale(currentScale);
 }
 
