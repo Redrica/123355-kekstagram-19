@@ -219,7 +219,7 @@ uploadInput.addEventListener('change', uploadInputChangeHandler);
 var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
 // я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
 var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
-var NO_EFFECT_CLASS = 'effects__preview--none';
+var NO_EFFECT = 'none';
 var Filter = {
   chrome: {
     NAME: 'chrome',
@@ -263,8 +263,7 @@ var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
 // var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
 var effectsList = uploadForm.querySelector('.effects__list');
 var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
-var currentEffectValue = 'none';
-var currentEffectClass = NO_EFFECT_CLASS;
+//var currentEffectValue = 'none';
 var effectInterfaceParams = {
   fullValue: 0,
   controlWidth: 0,
@@ -274,26 +273,26 @@ var effectInterfaceParams = {
   isShown: false,
 };
 
+var currentEffectClass = EFFECT_CLASS_SUBSTRING + document.querySelector('.effects__radio:checked').value;
 loadedPicture.classList.add(currentEffectClass);
 effectLevelInterface.classList.add('hidden');
 
 // функция, применяющая эффект при выборе фильтра
-function changeImageEffect(evt) {
+function changeImageEffect(effect) {
   loadedPicture.classList.remove(currentEffectClass);
-  currentEffectValue = evt.target.value;
-  currentEffectClass = EFFECT_CLASS_SUBSTRING + currentEffectValue;
+  currentEffectClass = EFFECT_CLASS_SUBSTRING + effect;
   loadedPicture.classList.add(currentEffectClass);
   loadedPicture.style.filter = '';
 }
 
-// функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного "что-то" сделать с контролом уровня.
+// функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного скрыть/показать/и т.п. контрол уровня.
 function effectListClickHandler(evt) {
   if (evt.target.tagName === 'INPUT') {
-
-    var newEffectClass = EFFECT_CLASS_SUBSTRING + evt.target.value;
+    var newEffect = evt.target.value;
+    var newEffectClass = EFFECT_CLASS_SUBSTRING + newEffect;
     if (!loadedPicture.classList.contains(newEffectClass)) { // проверяем, должен ли измениться эффект, если да, то ->
-      changeImageEffect(evt);
-      handleEffectInterface(newEffectClass);
+      changeImageEffect(newEffect);
+      handleEffectInterface(newEffect);
     }
   }
 }
@@ -311,8 +310,8 @@ function showEffectInterface() {
 }
 
 // функция, обрабатывающая поведение контрола уровня эффекта
-function handleEffectInterface(effectClass) {
-  if (effectClass === NO_EFFECT_CLASS) { // переключились с любого эффекта на ORIGIN, настройки не нужны
+function handleEffectInterface(effect) {
+  if (effect === NO_EFFECT) { // переключились с любого эффекта на ORIGIN, настройки не нужны
     hideEffectInterface();
   } else {
     if (!effectInterfaceParams.isShown) {
@@ -325,7 +324,7 @@ function handleEffectInterface(effectClass) {
   }
 }
 
-function getInitialEffectParams () {
+function getInitialEffectParams() {
   effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
   effectInterfaceParams.controlWidth = effectControl.offsetWidth;
   effectInterfaceParams.controlMaxCoord = effectInterfaceParams.fullValue + 'px';
@@ -336,7 +335,8 @@ function getInitialEffectParams () {
 // var setEffectValueToInitial = function () {
 //   effectControl.style.left = effectInterfaceParams.controlMaxCoord;
 //   effectLevelStripe.style.width = '100%';
-//   effectLevelInput.value = Filter[currentEffectValue.toLocaleUpperCase()].MAX;
+//   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
+//   effectLevelInput.value = Filter[currentEffectValue].MAX;
 // };
 
 effectsList.addEventListener('click', effectListClickHandler);
