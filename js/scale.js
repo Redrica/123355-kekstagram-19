@@ -1,13 +1,13 @@
 'use strict';
 
 (function () {
+  var PERSENT_FACTOR = 100;
   var Scale = {
     NAME: 'scale',
     MIN: 0.25,
     MAX: 1,
     STEP: 0.25,
   };
-  var PERSENT_FACTOR = 100;
   var loadedPicture = document.querySelector('.img-upload__preview img');
   var scaleUp = document.querySelector('.scale__control--bigger');
   var scaleDown = document.querySelector('.scale__control--smaller');

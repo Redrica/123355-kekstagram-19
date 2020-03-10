@@ -321,7 +321,7 @@
       // setEffectValueToInitial(); // отключено, иначе обработку mouseUp без D&D не видно
     }
   }
-
+// TODO: исправить сокращения - не Coord, а Coordinate or so.
   function getInitialEffectParams() {
     effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
     effectInterfaceParams.controlWidth = effectControl.offsetWidth;
