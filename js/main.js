@@ -167,10 +167,13 @@
 // document.body.classList.add('modal-open');
 
 // работа с загрузкой фотографии
+  var PERSENT_FACTOR = 100;
+
   var uploadForm = document.querySelector('.img-upload__form');
   var uploadInput = uploadForm.querySelector('#upload-file');
   var imageSetup = uploadForm.querySelector('.img-upload__overlay');
   var imageSetupClose = uploadForm.querySelector('#upload-cancel');
+  var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
 
   var scaleInterface = uploadForm.querySelector('.scale');
 
@@ -187,6 +190,7 @@
     document.body.classList.remove('modal-open');
     imageSetupClose.removeEventListener('click', setupCloseClickHandler);
     document.removeEventListener('keydown', setupEscKeypressHandler);
+    window.scale.removeScaleListener(scaleInterface);
     cleanError();
     setSetupToInitial();
   }
@@ -201,13 +205,23 @@
     }
   }
 
-  function uploadInputChangeHandler() {
+  var setImageScale = function (scale) {
+    loadedPicture.style.transform = 'scale(' + scale / PERSENT_FACTOR + ')';
+  };
+
+  var uploadInputChangeHandler = function () {
     imageSetup.classList.remove('hidden');
     document.body.classList.add('modal-open');
     imageSetupClose.addEventListener('click', setupCloseClickHandler);
     document.addEventListener('keydown', setupEscKeypressHandler);
-    scaleInterface.addEventListener('click', window.scale.scaleControlsClickHandler);
-  }
+    // TODO: сделать какую-то функцию setInitial?
+    setImageScale(window.scale.Scale.INITIAL);
+    scaleInterface.querySelector('input').value = window.scale.Scale.INITIAL + '%';
+
+    window.scale.addScaleListener(scaleInterface, function (scale) {
+      setImageScale(scale);
+    });
+  };
 
   uploadInput.addEventListener('change', uploadInputChangeHandler);
 
@@ -215,7 +229,7 @@
 // фильтры на фото
 // ////////////////////
 
-  var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
+  //var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
 // я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
   var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
   var NO_EFFECT = 'none';
@@ -474,7 +488,7 @@
       evt.preventDefault();
       hashtagInput.addEventListener('focus', inputFocusHandler);
     } else {
-      evt.preventDefault();
+      //evt.preventDefault();
       console.log('Все ок!');
     }
   }

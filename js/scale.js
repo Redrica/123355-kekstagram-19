@@ -1,42 +1,44 @@
 'use strict';
 
 (function () {
-  var PERSENT_FACTOR = 100;
   var Scale = {
-    NAME: 'scale',
-    MIN: 0.25,
-    MAX: 1,
-    STEP: 0.25,
+    INITIAL: 100,
+    MIN: 25,
+    MAX: 100,
+    STEP: 25,
   };
-  var loadedPicture = document.querySelector('.img-upload__preview img');
-  var scaleUp = document.querySelector('.scale__control--bigger');
-  var scaleDown = document.querySelector('.scale__control--smaller');
-  var scaleInput = document.querySelector('.scale__control--value');
 
-  function setScale(scaleValue) {
-    loadedPicture.style.transform = Scale.NAME + '(' + window.util.getCustomIntervalValue(Scale.MIN, Scale.MAX, scaleValue) + ')';
-    scaleInput.value = scaleValue * PERSENT_FACTOR + '%';
-  }
+  var scaleControlClickHandler;
 
-  function countScaleValue(evt) {
-    var currentScale = scaleInput.value.slice(0, (scaleInput.value.length - 1)) / PERSENT_FACTOR;
-    if (evt.target === scaleUp && currentScale !== Scale.MAX) {
-      currentScale += Scale.STEP;
-    }
-    if (evt.target === scaleDown && currentScale !== Scale.MIN) {
-      currentScale -= Scale.STEP;
-    }
-    return currentScale;
-  }
+  var addScaleListener = function (formElement, callback) {
+    var scaleInput = formElement.querySelector('.scale__control--value');
+    var scaleUp = formElement.querySelector('.scale__control--bigger');
+    var scaleDown = formElement.querySelector('.scale__control--smaller');
 
-  function scaleControlsClickHandler(evt) {
-    var currentScale = countScaleValue(evt);
-    setScale(currentScale);
-  }
+    scaleControlClickHandler = function (evt) {
+      var currentScale = parseInt(scaleInput.value, 10);
+      if (evt.target === scaleDown) {
+        currentScale = window.util.changeValue(currentScale, -Scale.STEP, Scale.MIN, Scale.MAX);
+      }
 
-  setScale(Scale.MAX);
+      if (evt.target === scaleUp) {
+        currentScale = window.util.changeValue(currentScale, Scale.STEP, Scale.MIN, Scale.MAX);
+      }
+
+      scaleInput.value = currentScale + '%';
+      callback(currentScale);
+    };
+
+    formElement.addEventListener('click', scaleControlClickHandler);
+  };
+
+  var removeScaleListener = function (formElement) {
+    formElement.removeEventListener('click', scaleControlClickHandler);
+  };
 
   window.scale = {
-    scaleControlsClickHandler: scaleControlsClickHandler,
+    Scale: Scale,
+    addScaleListener: addScaleListener,
+    removeScaleListener: removeScaleListener,
   };
 })();
