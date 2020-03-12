@@ -218,9 +218,10 @@
     setImageScale(window.scale.Scale.INITIAL);
     scaleInterface.querySelector('input').value = window.scale.Scale.INITIAL + '%';
 
-    window.scale.addScaleListener(scaleInterface, function (scale) {
-      setImageScale(scale);
-    });
+    // window.scale.addScaleListener(scaleInterface, function (scale) {
+    //   setImageScale(scale);
+    // });
+    window.scale.addScaleListener(scaleInterface, setImageScale);
   };
 
   uploadInput.addEventListener('change', uploadInputChangeHandler);
