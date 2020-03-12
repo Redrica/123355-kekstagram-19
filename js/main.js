@@ -7,91 +7,8 @@
     ESCAPE_KEY: 'Escape'
   };
 
-// // создаем сущность фотографии по объекту
-//   var createPictureElement = function (picture) {
-//     var pictureElement = document.querySelector('#picture').content.querySelector('.picture').cloneNode(true);
-//     pictureElement.querySelector('.picture__img').src = picture.url;
-//     pictureElement.querySelector('.picture__likes').textContent = picture.likes;
-//     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length + '';
-//     return pictureElement;
-//   };
-
-// // отрисовка фотографий
-//   var renderPictures = function (pictures) {
-//     var picturesFragment = document.createDocumentFragment();
-//     for (var i = 0; i < pictures.length; i++) {
-//       picturesFragment.appendChild(createPictureElement(pictures[i]));
-//     }
-//     return picturesFragment;
-//   };
-
-// // итоговый массив с фотографиями для отрисовки
-//   var pictures = window.generation.generatePictures(PICTURS_QUANTITY);
-
-// // отрисовка в DOM
-//   var picturesPlace = document.querySelector('.pictures');
-//   picturesPlace.appendChild(renderPictures(pictures));
-
-// работа с fullsize изображением
-  //var fullPicture = document.querySelector('.big-picture');
-// показ полноразмерного фото, временно скрыто
-  //fullPicture.classList.remove('hidden');
-
-// // функция для создания разметки одного комментария
-//   var createCommentLayout = function (comment) {
-//     var commentFragment = document.createDocumentFragment();
-//     var commentElement = document.createElement('li');
-//     var commentPicture = document.createElement('img');
-//     var commentText = document.createElement('p');
-//
-//     commentFragment.appendChild(commentElement);
-//     commentElement.classList.add('social__comment');
-//
-//     commentElement.appendChild(commentPicture);
-//     commentPicture.classList.add('social__picture');
-//     commentPicture.src = comment.avatar;
-//     commentPicture.alt = comment.name;
-//
-//     commentElement.appendChild(commentText);
-//     commentText.classList.add('social__text');
-//     commentText.textContent = comment.message;
-//
-//     return commentFragment;
-//   };
-//
-// // функция отрисовки блока комментариев
-//   var renderComments = function (picture) {
-//     var commentsFragment = document.createDocumentFragment();
-//     for (var i = 0; i < picture.comments.length; i++) {
-//       commentsFragment.appendChild(createCommentLayout(picture.comments[i]));
-//     }
-//
-//     var commentsParentElement = fullPicture.querySelector('.social__comments');
-//     commentsParentElement.innerHTML = '';
-//     commentsParentElement.appendChild(commentsFragment);
-//   };
-
-// // функция отрисовки полноразмерной фотографии со всеми причитающимися.
-//   var renderFullPicture = function (picture) {
-//     fullPicture.querySelector('.big-picture__img img').src = picture.url;
-//     fullPicture.querySelector('.likes-count').textContent = picture.likes;
-//     fullPicture.querySelector('.comments-count').textContent = picture.comments.length.toString();
-//     fullPicture.querySelector('.social__caption').textContent = picture.description;
-//
-//     renderComments(picture);
-//   };
-//
-//   renderFullPicture(pictures[0]);
-
-  // var commentCount = fullPicture.querySelector('.social__comment-count');
-  // var commentsLoader = fullPicture.querySelector('.comments-loader');
-  // commentCount.classList.add('hidden');
-  // commentsLoader.classList.add('hidden');
-
-// для показа полноразмерного фото, временно скрыто
-// document.body.classList.add('modal-open');
-
 // работа с загрузкой фотографии
+  var FORM_ACTION = 'https://js.dump.academy/kekstagram';
   var PERSENT_FACTOR = 100;
 
   var uploadForm = document.querySelector('.img-upload__form');
@@ -103,7 +20,6 @@
   var hashtagInput = uploadForm.querySelector('.text__hashtags');
 
   var scaleInterface = uploadForm.querySelector('.scale');
-
 
   function setSetupToInitial() {
     uploadInput.value = '';
@@ -142,6 +58,9 @@
     document.addEventListener('keydown', setupEscKeypressHandler);
     window.scale.addScaleListener(scaleInterface, setImageScale);
     window.validation.addSubmitListener(uploadForm);
+    if (!uploadForm.getAttribute('action')) {
+      uploadForm.setAttribute('action', FORM_ACTION);
+    }
   };
 
   uploadInput.addEventListener('change', uploadInputChangeHandler);

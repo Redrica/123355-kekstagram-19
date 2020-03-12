@@ -39,7 +39,7 @@
   // /////////
 
   // показ полноразмерного фото, временно скрыто
-  fullPicture.classList.remove('hidden');
+  // fullPicture.classList.remove('hidden');
 
   // функция для создания разметки одного комментария
   var createCommentLayout = function (comment) {
