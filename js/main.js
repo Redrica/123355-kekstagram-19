@@ -119,8 +119,8 @@
   var effectInterfaceParams = {
     fullValue: 0,
     controlWidth: 0,
-    CONTROL_MIN_COORD: '0px',
-    controlMaxCoord: 0,
+    CONTROL_MIN_COORDINATE: '0px',
+    controlMaxCoordinate: 0,
     initial: true,
     isShown: false,
   };
@@ -176,17 +176,16 @@
     }
   }
 
-  // TODO: исправить сокращения - не Coord, а Coordinate or so.
   function getInitialEffectParams() {
     effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
     effectInterfaceParams.controlWidth = effectControl.offsetWidth;
-    effectInterfaceParams.controlMaxCoord = effectInterfaceParams.fullValue + 'px';
+    effectInterfaceParams.controlMaxCoordinate = effectInterfaceParams.fullValue + 'px';
     effectInterfaceParams.initial = false;
   }
 
   // понадобится для установки значения при переключении эффекта
   // var setEffectValueToInitial = function () {
-  //   effectControl.style.left = effectInterfaceParams.controlMaxCoord;
+  //   effectControl.style.left = effectInterfaceParams.controlMaxCoordinate;
   //   effectLevelStripe.style.width = '100%';
   //   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
   //   effectLevelInput.value = Filter[currentEffectValue].MAX;
