@@ -15,6 +15,9 @@
     var scaleUp = formElement.querySelector('.scale__control--bigger');
     var scaleDown = formElement.querySelector('.scale__control--smaller');
 
+    scaleInput.value = Scale.INITIAL + '%';
+    callback(Scale.INITIAL);
+
     scaleControlClickHandler = function (evt) {
       var currentScale = parseInt(scaleInput.value, 10);
       if (evt.target === scaleDown) {

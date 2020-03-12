@@ -28,9 +28,19 @@
     return result;
   };
 
+  // функция, собирающая массив из введенной строки по пробелам
+  function getValuesArray(input) {
+    input.value = input.value.trim();
+    if (input.value === '') {
+      return [];
+    }
+    return input.value.toLowerCase().split(/\s+/);
+  }
+
   window.util = {
     getRandomNumber: getRandomNumber,
     getCustomIntervalValue: getCustomIntervalValue,
     changeValue: changeValue,
+    getValuesArray: getValuesArray,
   };
 })();

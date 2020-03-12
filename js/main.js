@@ -174,14 +174,15 @@
   var imageSetup = uploadForm.querySelector('.img-upload__overlay');
   var imageSetupClose = uploadForm.querySelector('#upload-cancel');
   var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
+  var descriptionInput = uploadForm.querySelector('.text__description');
+  var hashtagInput = uploadForm.querySelector('.text__hashtags');
 
   var scaleInterface = uploadForm.querySelector('.scale');
 
 
   function setSetupToInitial() {
     uploadInput.value = '';
-    hashtagInput.value = '';
-    descriptionInput.value = '';
+    descriptionInput.value = ''; // TODO: перенести в валидацию
     // TODO: доработать установку начального эффекта при закрытии окна без отправки формы. setEffectValueToInitial()+
   }
 
@@ -191,7 +192,7 @@
     imageSetupClose.removeEventListener('click', setupCloseClickHandler);
     document.removeEventListener('keydown', setupEscKeypressHandler);
     window.scale.removeScaleListener(scaleInterface);
-    cleanError();
+    window.validation.cleanValidation(uploadForm);
     setSetupToInitial();
   }
 
@@ -214,14 +215,8 @@
     document.body.classList.add('modal-open');
     imageSetupClose.addEventListener('click', setupCloseClickHandler);
     document.addEventListener('keydown', setupEscKeypressHandler);
-    // TODO: сделать какую-то функцию setInitial?
-    setImageScale(window.scale.Scale.INITIAL);
-    scaleInterface.querySelector('input').value = window.scale.Scale.INITIAL + '%';
-
-    // window.scale.addScaleListener(scaleInterface, function (scale) {
-    //   setImageScale(scale);
-    // });
     window.scale.addScaleListener(scaleInterface, setImageScale);
+    window.validation.addSubmitListener(uploadForm);
   };
 
   uploadInput.addEventListener('change', uploadInputChangeHandler);
@@ -274,7 +269,7 @@
   var effectLevelInterface = uploadForm.querySelector('.effect-level');
   var effectLevelFull = effectLevelInterface.querySelector('.effect-level__line');
   var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
-// var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
+  // var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
   var effectsList = uploadForm.querySelector('.effects__list');
   var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
   var effectInterfaceParams = {
@@ -290,7 +285,7 @@
   loadedPicture.classList.add(currentEffectClass);
   effectLevelInterface.classList.add('hidden');
 
-// функция, применяющая эффект при выборе фильтра
+  // функция, применяющая эффект при выборе фильтра
   function changeImageEffect(effect) {
     loadedPicture.classList.remove(currentEffectClass);
     currentEffectClass = EFFECT_CLASS_SUBSTRING + effect;
@@ -298,7 +293,7 @@
     loadedPicture.style.filter = '';
   }
 
-// функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного скрыть/показать/и т.п. контрол уровня.
+  // функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного скрыть/показать/и т.п. контрол уровня.
   function effectListClickHandler(evt) {
     if (evt.target.tagName === 'INPUT') {
       var newEffect = evt.target.value;
@@ -322,7 +317,7 @@
     effectInterfaceParams.isShown = true;
   }
 
-// функция, обрабатывающая поведение контрола уровня эффекта
+  // функция, обрабатывающая поведение контрола уровня эффекта
   function handleEffectInterface(effect) {
     if (effect === NO_EFFECT) { // переключились с любого эффекта на ORIGIN, настройки не нужны
       hideEffectInterface();
@@ -336,7 +331,8 @@
       // setEffectValueToInitial(); // отключено, иначе обработку mouseUp без D&D не видно
     }
   }
-// TODO: исправить сокращения - не Coord, а Coordinate or so.
+
+  // TODO: исправить сокращения - не Coord, а Coordinate or so.
   function getInitialEffectParams() {
     effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
     effectInterfaceParams.controlWidth = effectControl.offsetWidth;
@@ -344,17 +340,17 @@
     effectInterfaceParams.initial = false;
   }
 
-// понадобится для установки значения при переключении эффекта
-// var setEffectValueToInitial = function () {
-//   effectControl.style.left = effectInterfaceParams.controlMaxCoord;
-//   effectLevelStripe.style.width = '100%';
-//   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
-//   effectLevelInput.value = Filter[currentEffectValue].MAX;
-// };
+  // понадобится для установки значения при переключении эффекта
+  // var setEffectValueToInitial = function () {
+  //   effectControl.style.left = effectInterfaceParams.controlMaxCoord;
+  //   effectLevelStripe.style.width = '100%';
+  //   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
+  //   effectLevelInput.value = Filter[currentEffectValue].MAX;
+  // };
 
   effectsList.addEventListener('click', effectListClickHandler);
 
-// функция, возвращающая строку для записи в style картинки
+  // функция, возвращающая строку для записи в style картинки
   function getStyleFilterRule(filter, effectValue) {
     return filter.FILTER + '(' + window.util.getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT + ')';
   }
@@ -371,142 +367,4 @@
     setEffectValue(controlFractionValue);
   }
 
-// ////////////
-// валидация хэштегов
-// ///////////
-
-  var ErrorMessage = {
-    QUANTITY_LIMIT: 'Можно задать не более пяти хэштегов.', // доработать на расчет кол-ва, т.к  может быть другое ограничение?
-    FIRST_SYMBOL: 'Первый символ должен быть #.',
-    MIN_LENGTH: 'Должно быть больше одного символа.',
-    MAX_LENGTH: 'Длина не более 20 символов.',
-    INCORRECT_SYMBOL: 'Может включать только буквы и цифры.',
-    NO_REPETITION: 'Значения не должны повторяться.',
-  };
-
-  var HashStingParam = {
-    MIN_LENGTH: 2,
-    MAX_LENGTH: 20,
-    QUANTITY_LIMIT: 5,
-  };
-
-  var hashtagInput = uploadForm.querySelector('.text__hashtags');
-  var descriptionInput = uploadForm.querySelector('.text__description');
-
-  function getValuesArray(input) {
-    input.value = input.value.trim();
-    if (input.value === '') {
-      return [];
-    }
-    return input.value.toLowerCase().split(/\s+/);
-  }
-
-  function addError(errorsArray, error) {
-    if (errorsArray.indexOf(error) === -1) {
-      errorsArray.push(error);
-    }
-  }
-
-  function checkHashSymbol(hashtag, errorsArray) {
-    if (hashtag[0] !== '#') {
-      addError(errorsArray, ErrorMessage.FIRST_SYMBOL);
-    }
-  }
-
-  function checkHashtagMinLength(hashtag, errorsArray) {
-    if (hashtag.length < HashStingParam.MIN_LENGTH && hashtag[0] === '#') {
-      addError(errorsArray, ErrorMessage.MIN_LENGTH);
-    }
-  }
-
-  function checkHashtagMaxLength(hashtag, errorsArray) {
-    if (hashtag.length > HashStingParam.MAX_LENGTH) {
-      addError(errorsArray, ErrorMessage.MAX_LENGTH);
-    }
-  }
-
-  function checkCorrectSymbols(hashtag, errorsArray) {
-    if (!hashtag.match(/^#?[а-яёa-z\d]+$/)) {
-      addError(errorsArray, ErrorMessage.INCORRECT_SYMBOL);
-    }
-  }
-
-  function checkRepetiion(hashtag, errorsArray, hashtagsArray, currentIndex) {
-    if (hashtagsArray.indexOf(hashtag, currentIndex + 1) > 0) {
-      addError(errorsArray, ErrorMessage.NO_REPETITION);
-    }
-  }
-
-  function checkHashtags(hashtagsArray) {
-    var errors = [];
-    if (hashtagsArray.length > 0) {
-      if (hashtagsArray.length > HashStingParam.QUANTITY_LIMIT) {
-        errors.push(ErrorMessage.QUANTITY_LIMIT);
-      }
-
-      hashtagsArray.forEach(function (it, index, array) {
-        checkHashSymbol(it, errors);
-        checkHashtagMinLength(it, errors);
-        checkHashtagMaxLength(it, errors);
-        checkCorrectSymbols(it, errors);
-        checkRepetiion(it, errors, array, index);
-      });
-    }
-    return errors;
-  }
-
-  function createErrorMessage() {
-    var errorMessage = document.createElement('p');
-    errorMessage.classList.add('text__error');
-    hashtagInput.parentElement.insertBefore(errorMessage, hashtagInput.nextSibling);
-  }
-
-  function setErrorCondition(errors) {
-    if (!document.querySelector('.text__error')) {
-      createErrorMessage();
-    }
-    var errorMessage = document.querySelector('.text__error');
-    errorMessage.textContent = errors.join(' ');
-  }
-
-  function cleanError() {
-    var errorMessage = document.querySelector('.text__error');
-    if (errorMessage) {
-      errorMessage.textContent = '';
-    }
-  }
-
-  function inputFocusHandler() {
-    cleanError();
-  }
-
-  function submitFormHandler(evt) {
-    var hashtags = getValuesArray(hashtagInput);
-    var errors = checkHashtags(hashtags);
-
-    if (errors.length > 0) {
-      setErrorCondition(errors);
-      evt.preventDefault();
-      hashtagInput.addEventListener('focus', inputFocusHandler);
-    } else {
-      //evt.preventDefault();
-      console.log('Все ок!');
-    }
-  }
-
-  uploadForm.addEventListener('submit', submitFormHandler);
-
-  /**
-   + 1. Хэштег должен начинаться с #.
-   + 2. Содержит только буквы и числа.
-   + 3. Не может состоять только из #.
-   + 4. Максимальная длина 20 символов вместе с #.
-   + 5. Регистр не учитывается, аа === АА.
-   + 6. Разделены пробелами. Любым количеством!
-   + 7. Не повторяются.
-   + 8. Максимум 5 штук.
-   + 9. Могут вообще отсутствовать.
-   */
-
-// #котик #синий #джинСкот
 })();
