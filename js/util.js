@@ -1,6 +1,19 @@
 'use strict';
 
 (function () {
+  var ESCAPE_KEY = 'Escape';
+
+  var isEscapeEvent = function (evt, action) {
+    if (evt.key === ESCAPE_KEY) {
+      action();
+    }
+  };
+
+  var escapeStopPropagationHandler = function (evt) {
+    if (evt.key === ESCAPE_KEY) {
+      evt.stopPropagation();
+    }
+  };
 
   // получение случайного целого числа от min до max
   var getRandomNumber = function (max, min) {
@@ -38,6 +51,8 @@
   }
 
   window.util = {
+    isEscapeEvent: isEscapeEvent,
+    escapeStopPropagationHandler: escapeStopPropagationHandler,
     getRandomNumber: getRandomNumber,
     getCustomIntervalValue: getCustomIntervalValue,
     changeValue: changeValue,

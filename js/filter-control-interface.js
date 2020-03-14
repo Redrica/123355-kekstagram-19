@@ -9,6 +9,12 @@
     initial: true,
   };
 
+  var checkInterfaceCondition = function (controlInterface) {
+    if (effectInterfaceParams.initial) {
+      getInitialInterfaceParams(controlInterface);
+    }
+  };
+
   var getInitialInterfaceParams = function (controlInterface) {
     var effectLevelFull = controlInterface.querySelector('.effect-level__line');
     var effectControl = controlInterface.querySelector('.effect-level__pin');
@@ -41,6 +47,7 @@
   };
 
   window.filterControlInterface = {
+    checkInterfaceCondition: checkInterfaceCondition,
     getInitialInterfaceParams: getInitialInterfaceParams,
     handleEffectInterface: handleEffectInterface,
     removeControlListener: removeControlListener,

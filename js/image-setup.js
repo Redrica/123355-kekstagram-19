@@ -39,40 +39,30 @@
     },
   };
 
-  var Code = {
-    ENTER_KEY: 'Enter',
-    ESCAPE_KEY: 'Escape'
-  };
-
-// работа с загрузкой фотографии
   var FORM_ACTION = 'https://js.dump.academy/kekstagram';
-  var PERSENT_FACTOR = 100;
+  var PERCENT_FACTOR = 100;
   var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
   var NO_EFFECT = 'none';
-
   var uploadForm = document.querySelector('.img-upload__form');
   var uploadInput = uploadForm.querySelector('#upload-file');
   var imageSetup = uploadForm.querySelector('.img-upload__overlay');
   var imageSetupClose = uploadForm.querySelector('#upload-cancel');
   var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
-  // var descriptionInput = uploadForm.querySelector('.text__description');
-  var hashtagInput = uploadForm.querySelector('.text__hashtags');
-
   var scaleInterface = uploadForm.querySelector('.scale');
   var effectsList = uploadForm.querySelector('.effects__list');
   var effectLevelInterface = uploadForm.querySelector('.effect-level');
   var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
-
-
+  var hashtagInput = uploadForm.querySelector('.text__hashtags');
+  var descriptionInput = uploadForm.querySelector('.text__description');
   var currentEffect;
 
   var setSetupToInitial = function () {
-    uploadInput.value = '';
     loadedPicture.classList.remove(EFFECT_CLASS_SUBSTRING + currentEffect);
+    uploadInput.value = '';
     effectLevelInput.value = '';
-
-    //descriptionInput.value = ''; // TODO: перенести в валидацию
-    // TODO: доработать установку начального эффекта при закрытии окна без отправки формы. setEffectValueToInitial()+
+    hashtagInput.value = '';
+    descriptionInput.value = '';
+    // TODO: проверить, все ли чистится при закрытии заполненной, но не отправленной формы
   };
 
   var closeSetup = function () {
@@ -80,13 +70,13 @@
     document.body.classList.remove('modal-open');
     imageSetupClose.removeEventListener('click', setupCloseClickHandler);
     document.removeEventListener('keydown', setupEscKeypressHandler);
+    hashtagInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
+    descriptionInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
     window.scale.removeScaleListener(scaleInterface);
     window.validation.cleanValidation(uploadForm);
-    setSetupToInitial();
-
-    // effectsList.removeEventListener('click', effectListClickHandler);
     window.filter.removeFilterClickHandler(effectsList);
     window.filterControlInterface.removeControlListener(effectLevelInterface);
+    setSetupToInitial();
   };
 
   var setupCloseClickHandler = function () {
@@ -94,9 +84,7 @@
   };
 
   var setupEscKeypressHandler = function (evt) {
-    if (evt.key === Code.ESCAPE_KEY && document.activeElement !== hashtagInput) {
-      closeSetup();
-    }
+    window.util.isEscapeEvent(evt, closeSetup);
   };
 
   var handleImageEffect = function (effect) {
@@ -126,13 +114,25 @@
     } else {
       if (effectLevelInterface.classList.contains('hidden')) {
         effectLevelInterface.classList.remove('hidden');
+        window.filterControlInterface.checkInterfaceCondition(effectLevelInterface);
       }
       updateEffectInterface(effect);
     }
   };
 
+  // функция, возвращающая строку для записи в style картинки
+  var getStyleFilterRule = function (filter, effectValue) {
+    return filter.FILTER + '(' + window.util.getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT + ')';
+  };
+
+  var setEffectValue = function (effect, effectValue) {
+    // записываем значение в input для отправки
+    effectLevelInput.value = effectValue * PERCENT_FACTOR;
+    loadedPicture.style.filter = getStyleFilterRule(Filter[effect], effectValue);
+  };
+
   var setImageScale = function (scale) {
-    loadedPicture.style.transform = 'scale(' + scale / PERSENT_FACTOR + ')';
+    loadedPicture.style.transform = 'scale(' + scale / PERCENT_FACTOR + ')';
   };
 
   var uploadInputChangeHandler = function () {
@@ -140,13 +140,13 @@
     document.body.classList.add('modal-open');
     imageSetupClose.addEventListener('click', setupCloseClickHandler);
     document.addEventListener('keydown', setupEscKeypressHandler);
-
+    hashtagInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
+    descriptionInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
     window.scale.addScaleListener(scaleInterface, setImageScale);
     window.validation.addSubmitListener(uploadForm);
     if (!uploadForm.getAttribute('action')) {
       uploadForm.setAttribute('action', FORM_ACTION);
     }
-
     effectLevelInterface.classList.add('hidden');
     currentEffect = NO_EFFECT;
     window.filter.addFilterClickHandler(effectsList, handleImageEffect);
@@ -161,15 +161,4 @@
   //   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
   //   effectLevelInput.value = Filter[currentEffectValue].MAX;
   // };
-
-  // функция, возвращающая строку для записи в style картинки
-  var getStyleFilterRule = function (filter, effectValue) {
-    return filter.FILTER + '(' + window.util.getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT + ')';
-  };
-
-  var setEffectValue = function (effect, effectValue) {
-    // записываем значение в input для отправки
-    effectLevelInput.value = effectValue * PERSENT_FACTOR;
-    loadedPicture.style.filter = getStyleFilterRule(Filter[effect], effectValue);
-  };
 })();
