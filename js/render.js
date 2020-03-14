@@ -1,20 +1,18 @@
 'use strict';
 
 (function () {
-  var PICTURS_QUANTITY = 25;
   var fullPicture = document.querySelector('.big-picture');
   var commentCount = fullPicture.querySelector('.social__comment-count');
   var commentsLoader = fullPicture.querySelector('.comments-loader');
-
-  var picturesGenerated = window.generation.generatePictures(PICTURS_QUANTITY);
 
   // //////////
   // рендер превьюшек
   // /////////
 
   // создаем сущность фотографии по объекту
-  var createPictureElement = function (picture) {
+  var createPictureElement = function (picture, index) {
     var pictureElement = document.querySelector('#picture').content.querySelector('.picture').cloneNode(true);
+    pictureElement.dataset.index = index;
     pictureElement.querySelector('.picture__img').src = picture.url;
     pictureElement.querySelector('.picture__likes').textContent = picture.likes;
     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length + '';
@@ -25,14 +23,10 @@
   var renderPictures = function (picturesData) {
     var picturesFragment = document.createDocumentFragment();
     for (var i = 0; i < picturesData.length; i++) {
-      picturesFragment.appendChild(createPictureElement(picturesData[i]));
+      picturesFragment.appendChild(createPictureElement(picturesData[i], i));
     }
     return picturesFragment;
   };
-
-  // отрисовка в DOM
-  var picturesPlace = document.querySelector('.pictures');
-  picturesPlace.appendChild(renderPictures(picturesGenerated));
 
   // //////////
   // рендер увеличенной фотографии
@@ -85,10 +79,15 @@
     renderComments(picture);
   };
 
-  renderFullPicture(picturesGenerated[0]);
+  //renderFullPicture(picturesGenerated[0]);
 
   // ////////////
   // временно по заданию
   commentCount.classList.add('hidden');
   commentsLoader.classList.add('hidden');
+
+  window.render = {
+    renderPictures: renderPictures,
+    renderFullPicture: renderFullPicture,
+  };
 })();
