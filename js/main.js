@@ -1,78 +1,6 @@
 'use strict';
+
 (function () {
-  // var PICTURS_QUANTITY = 25;
-
-  var Code = {
-    ENTER_KEY: 'Enter',
-    ESCAPE_KEY: 'Escape'
-  };
-
-// работа с загрузкой фотографии
-  var FORM_ACTION = 'https://js.dump.academy/kekstagram';
-  var PERSENT_FACTOR = 100;
-
-  var uploadForm = document.querySelector('.img-upload__form');
-  var uploadInput = uploadForm.querySelector('#upload-file');
-  var imageSetup = uploadForm.querySelector('.img-upload__overlay');
-  var imageSetupClose = uploadForm.querySelector('#upload-cancel');
-  var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
-  var descriptionInput = uploadForm.querySelector('.text__description');
-  var hashtagInput = uploadForm.querySelector('.text__hashtags');
-
-  var scaleInterface = uploadForm.querySelector('.scale');
-
-  function setSetupToInitial() {
-    uploadInput.value = '';
-    descriptionInput.value = ''; // TODO: перенести в валидацию
-    // TODO: доработать установку начального эффекта при закрытии окна без отправки формы. setEffectValueToInitial()+
-  }
-
-  function closeSetup() {
-    imageSetup.classList.add('hidden');
-    document.body.classList.remove('modal-open');
-    imageSetupClose.removeEventListener('click', setupCloseClickHandler);
-    document.removeEventListener('keydown', setupEscKeypressHandler);
-    window.scale.removeScaleListener(scaleInterface);
-    window.validation.cleanValidation(uploadForm);
-    setSetupToInitial();
-  }
-
-  function setupCloseClickHandler() {
-    closeSetup();
-  }
-
-  function setupEscKeypressHandler(evt) {
-    if (evt.key === Code.ESCAPE_KEY && document.activeElement !== hashtagInput) {
-      closeSetup();
-    }
-  }
-
-  var setImageScale = function (scale) {
-    loadedPicture.style.transform = 'scale(' + scale / PERSENT_FACTOR + ')';
-  };
-
-  var uploadInputChangeHandler = function () {
-    imageSetup.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-    imageSetupClose.addEventListener('click', setupCloseClickHandler);
-    document.addEventListener('keydown', setupEscKeypressHandler);
-    window.scale.addScaleListener(scaleInterface, setImageScale);
-    window.validation.addSubmitListener(uploadForm);
-    if (!uploadForm.getAttribute('action')) {
-      uploadForm.setAttribute('action', FORM_ACTION);
-    }
-  };
-
-  uploadInput.addEventListener('change', uploadInputChangeHandler);
-
-// ////////////////////
-// фильтры на фото
-// ////////////////////
-
-  //var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
-// я помню, что константы надо в начало выносить, но поскольку впереди разделение на модули – тут их проще не потерять в процессе.
-  var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
-  var NO_EFFECT = 'none';
   var Filter = {
     chrome: {
       NAME: 'chrome',
@@ -110,78 +38,121 @@
       UNIT: '',
     },
   };
-  var effectLevelInterface = uploadForm.querySelector('.effect-level');
-  var effectLevelFull = effectLevelInterface.querySelector('.effect-level__line');
-  var effectControl = effectLevelInterface.querySelector('.effect-level__pin');
-  // var effectLevelStripe = effectLevelInterface.querySelector('.effect-level__depth');
-  var effectsList = uploadForm.querySelector('.effects__list');
-  var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
-  var effectInterfaceParams = {
-    fullValue: 0,
-    controlWidth: 0,
-    CONTROL_MIN_COORDINATE: '0px',
-    controlMaxCoordinate: 0,
-    initial: true,
-    isShown: false,
+
+  var Code = {
+    ENTER_KEY: 'Enter',
+    ESCAPE_KEY: 'Escape'
   };
 
-  var currentEffectClass = EFFECT_CLASS_SUBSTRING + document.querySelector('.effects__radio:checked').value;
-  loadedPicture.classList.add(currentEffectClass);
-  effectLevelInterface.classList.add('hidden');
+// работа с загрузкой фотографии
+  var FORM_ACTION = 'https://js.dump.academy/kekstagram';
+  var PERSENT_FACTOR = 100;
+  var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
+  var NO_EFFECT = 'none';
 
-  // функция, применяющая эффект при выборе фильтра
-  function changeImageEffect(effect) {
-    loadedPicture.classList.remove(currentEffectClass);
-    currentEffectClass = EFFECT_CLASS_SUBSTRING + effect;
-    loadedPicture.classList.add(currentEffectClass);
-    loadedPicture.style.filter = '';
-  }
+  var uploadForm = document.querySelector('.img-upload__form');
+  var uploadInput = uploadForm.querySelector('#upload-file');
+  var imageSetup = uploadForm.querySelector('.img-upload__overlay');
+  var imageSetupClose = uploadForm.querySelector('#upload-cancel');
+  var loadedPicture = uploadForm.querySelector('.img-upload__preview img');
+  // var descriptionInput = uploadForm.querySelector('.text__description');
+  var hashtagInput = uploadForm.querySelector('.text__hashtags');
 
-  // функция-обработчик клика по превьюшкам фильтра. Должна применить эффект и в зависимости от выбранного скрыть/показать/и т.п. контрол уровня.
-  function effectListClickHandler(evt) {
-    if (evt.target.tagName === 'INPUT') {
-      var newEffect = evt.target.value;
-      var newEffectClass = EFFECT_CLASS_SUBSTRING + newEffect;
-      if (!loadedPicture.classList.contains(newEffectClass)) { // проверяем, должен ли измениться эффект, если да, то ->
-        changeImageEffect(newEffect);
-        handleEffectInterface(newEffect);
-      }
+  var scaleInterface = uploadForm.querySelector('.scale');
+  var effectsList = uploadForm.querySelector('.effects__list');
+  var effectLevelInterface = uploadForm.querySelector('.effect-level');
+  var effectLevelInput = effectLevelInterface.querySelector('.effect-level__value');
+
+
+  var currentEffect;
+
+  var setSetupToInitial = function () {
+    uploadInput.value = '';
+    loadedPicture.classList.remove(EFFECT_CLASS_SUBSTRING + currentEffect);
+    effectLevelInput.value = '';
+
+    //descriptionInput.value = ''; // TODO: перенести в валидацию
+    // TODO: доработать установку начального эффекта при закрытии окна без отправки формы. setEffectValueToInitial()+
+  };
+
+  var closeSetup = function () {
+    imageSetup.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    imageSetupClose.removeEventListener('click', setupCloseClickHandler);
+    document.removeEventListener('keydown', setupEscKeypressHandler);
+    window.scale.removeScaleListener(scaleInterface);
+    window.validation.cleanValidation(uploadForm);
+    setSetupToInitial();
+
+    // effectsList.removeEventListener('click', effectListClickHandler);
+    window.filter.removeFilterClickHandler(effectsList);
+    window.filterControlInterface.removeControlListener(effectLevelInterface);
+  };
+
+  var setupCloseClickHandler = function () {
+    closeSetup();
+  };
+
+  var setupEscKeypressHandler = function (evt) {
+    if (evt.key === Code.ESCAPE_KEY && document.activeElement !== hashtagInput) {
+      closeSetup();
     }
-  }
+  };
 
-  function hideEffectInterface() {
+  var handleImageEffect = function (effect) {
+    if (effect !== currentEffect) {
+      loadedPicture.classList.remove(EFFECT_CLASS_SUBSTRING + currentEffect);
+      loadedPicture.classList.add(EFFECT_CLASS_SUBSTRING + effect);
+      loadedPicture.style.filter = '';
+      switchEffectInterface(effect);
+      currentEffect = effect;
+    }
+  };
+
+  var hideEffectInterface = function () {
     effectLevelInterface.classList.add('hidden');
-    effectControl.removeEventListener('mouseup', effectControlMouseupHandler);
-    effectInterfaceParams.isShown = false;
-  }
+    window.filterControlInterface.removeControlListener(effectLevelInterface);
+  };
 
-  function showEffectInterface() {
-    effectLevelInterface.classList.remove('hidden');
-    effectControl.addEventListener('mouseup', effectControlMouseupHandler);
-    effectInterfaceParams.isShown = true;
-  }
+  var updateEffectInterface = function (effect) {
+    window.filterControlInterface.removeControlListener(effectLevelInterface);
+    window.filterControlInterface.handleEffectInterface(effectLevelInterface, effect, setEffectValue);
+  };
 
   // функция, обрабатывающая поведение контрола уровня эффекта
-  function handleEffectInterface(effect) {
+  var switchEffectInterface = function (effect) {
     if (effect === NO_EFFECT) { // переключились с любого эффекта на ORIGIN, настройки не нужны
       hideEffectInterface();
     } else {
-      if (!effectInterfaceParams.isShown) {
-        showEffectInterface();
+      if (effectLevelInterface.classList.contains('hidden')) {
+        effectLevelInterface.classList.remove('hidden');
       }
-      if (effectInterfaceParams.initial && effectInterfaceParams.isShown) {
-        getInitialEffectParams();
-      }
-      // setEffectValueToInitial(); // отключено, иначе обработку mouseUp без D&D не видно
+      updateEffectInterface(effect);
     }
-  }
+  };
 
-  function getInitialEffectParams() {
-    effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
-    effectInterfaceParams.controlWidth = effectControl.offsetWidth;
-    effectInterfaceParams.controlMaxCoordinate = effectInterfaceParams.fullValue + 'px';
-    effectInterfaceParams.initial = false;
-  }
+  var setImageScale = function (scale) {
+    loadedPicture.style.transform = 'scale(' + scale / PERSENT_FACTOR + ')';
+  };
+
+  var uploadInputChangeHandler = function () {
+    imageSetup.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    imageSetupClose.addEventListener('click', setupCloseClickHandler);
+    document.addEventListener('keydown', setupEscKeypressHandler);
+
+    window.scale.addScaleListener(scaleInterface, setImageScale);
+    window.validation.addSubmitListener(uploadForm);
+    if (!uploadForm.getAttribute('action')) {
+      uploadForm.setAttribute('action', FORM_ACTION);
+    }
+
+    effectLevelInterface.classList.add('hidden');
+    currentEffect = NO_EFFECT;
+    window.filter.addFilterClickHandler(effectsList, handleImageEffect);
+  };
+
+  uploadInput.addEventListener('change', uploadInputChangeHandler);
 
   // понадобится для установки значения при переключении эффекта
   // var setEffectValueToInitial = function () {
@@ -191,23 +162,14 @@
   //   effectLevelInput.value = Filter[currentEffectValue].MAX;
   // };
 
-  effectsList.addEventListener('click', effectListClickHandler);
-
   // функция, возвращающая строку для записи в style картинки
-  function getStyleFilterRule(filter, effectValue) {
+  var getStyleFilterRule = function (filter, effectValue) {
     return filter.FILTER + '(' + window.util.getCustomIntervalValue(filter.MIN, filter.MAX, effectValue) + filter.UNIT + ')';
-  }
+  };
 
-  function setEffectValue(effectValue) {
+  var setEffectValue = function (effect, effectValue) {
     // записываем значение в input для отправки
-    effectLevelInput.value = effectValue;
-    var currentFilter = document.querySelector('.effects__radio:checked').value;
-    loadedPicture.style.filter = getStyleFilterRule(Filter[currentFilter], effectValue);
-  }
-
-  function effectControlMouseupHandler() {
-    var controlFractionValue = (effectControl.offsetLeft / effectInterfaceParams.fullValue).toFixed(2);
-    setEffectValue(controlFractionValue);
-  }
-
+    effectLevelInput.value = effectValue * PERSENT_FACTOR;
+    loadedPicture.style.filter = getStyleFilterRule(Filter[effect], effectValue);
+  };
 })();

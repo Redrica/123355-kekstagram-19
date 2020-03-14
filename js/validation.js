@@ -19,7 +19,6 @@
   };
 
   var submitFormHandler;
-  var hashtagInput;
 
   var addError = function (errorsArray, error) {
     if (errorsArray.indexOf(error) === -1) {
@@ -103,7 +102,7 @@
   };
 
   var addSubmitListener = function (form) {
-    hashtagInput = form.querySelector('.text__hashtags');
+    var hashtagInput = form.querySelector('.text__hashtags');
 
     submitFormHandler = function (evt) {
       var hashtags = window.util.getValuesArray(hashtagInput);
@@ -120,6 +119,7 @@
   };
 
   var cleanValidation = function (form) {
+    var hashtagInput = form.querySelector('.text__hashtags');
     form.removeEventListener('submit', submitFormHandler);
     hashtagInput.removeEventListener('focus', inputFocusHandler);
     cleanError();
