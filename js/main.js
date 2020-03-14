@@ -7,6 +7,7 @@
   var fullPictureButtonClose = fullPicture.querySelector('.big-picture__cancel');
   var commentCount = fullPicture.querySelector('.social__comment-count');
   var commentsLoader = fullPicture.querySelector('.comments-loader');
+  var uploadInput = document.querySelector('#upload-file');
 
   var picturesGenerated = window.generation.generatePictures(PICTURS_QUANTITY);
   picturesPlace.appendChild(window.render.renderPictures(picturesGenerated));
@@ -40,6 +41,7 @@
   };
 
   picturesPlace.addEventListener('click', picturesClickHandler);
+  uploadInput.addEventListener('change', window.imageSetup.uploadInputChangeHandler);
 
   // ////////////
   // временно по заданию
