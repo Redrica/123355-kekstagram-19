@@ -105,7 +105,7 @@
     }
     var errorMessage = document.querySelector('[data-error=' + input.name + ']');
 
-    if (typeof errors === 'string') {
+    if (errors && typeof errors === 'string') {
       errorMessage.textContent = errors;
     } else {
       errorMessage.textContent = errors.join(' ');
@@ -144,6 +144,8 @@
     var commentInput = form.querySelector('.text__description');
 
     submitFormHandler = function (evt) {
+      evt.preventDefault();
+
       var hashtags = window.util.getValuesArray(hashtagInput);
       var hashtagsErrors = checkHashtags(hashtags);
       var commentError = checkComment(commentInput.value);
@@ -154,7 +156,7 @@
         errorExist = true;
       }
 
-      if (commentError !== '') {
+      if (commentError) {
         handleValidationError(evt, commentInput, commentError);
         if (!errorExist) {
           errorExist = true;

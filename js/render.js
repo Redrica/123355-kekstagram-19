@@ -1,10 +1,6 @@
 'use strict';
 
 (function () {
-  // //////////
-  // рендер превьюшек
-  // /////////
-
   // создаем сущность фотографии по объекту
   var createPictureElement = function (picture, index) {
     var pictureElement = document.querySelector('#picture').content.querySelector('.picture').cloneNode(true);
@@ -23,10 +19,6 @@
     }
     return picturesFragment;
   };
-
-  // //////////
-  // рендер увеличенной фотографии
-  // /////////
 
   // функция для создания разметки одного комментария
   var createCommentLayout = function (comment) {

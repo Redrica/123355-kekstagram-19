@@ -70,8 +70,8 @@
     document.body.classList.remove('modal-open');
     imageSetupClose.removeEventListener('click', setupCloseClickHandler);
     document.removeEventListener('keydown', setupEscKeypressHandler);
-    hashtagInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
-    descriptionInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
+    hashtagInput.removeEventListener('keydown', window.util.escapeStopPropagationHandler);
+    descriptionInput.removeEventListener('keydown', window.util.escapeStopPropagationHandler);
     window.scale.removeScaleListener(scaleInterface);
     window.validation.cleanValidation(uploadForm);
     window.filter.removeFilterClickHandler(effectsList);
@@ -148,11 +148,8 @@
       uploadForm.setAttribute('action', FORM_ACTION);
     }
     effectLevelInterface.classList.add('hidden');
-    currentEffect = NO_EFFECT;
     window.filter.addFilterClickHandler(effectsList, handleImageEffect);
   };
-
-  uploadInput.addEventListener('change', uploadInputChangeHandler);
 
   // понадобится для установки значения при переключении эффекта
   // var setEffectValueToInitial = function () {
@@ -161,4 +158,7 @@
   //   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
   //   effectLevelInput.value = Filter[currentEffectValue].MAX;
   // };
+  window.imageSetup = {
+    uploadInputChangeHandler: uploadInputChangeHandler,
+  };
 })();
