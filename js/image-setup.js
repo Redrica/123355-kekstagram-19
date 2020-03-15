@@ -62,6 +62,8 @@
     effectLevelInput.value = '';
     hashtagInput.value = '';
     descriptionInput.value = '';
+    loadedPicture.style.filter = '';
+    loadedPicture.style.transform = '';
     // TODO: проверить, все ли чистится при закрытии заполненной, но не отправленной формы
   };
 
@@ -75,7 +77,7 @@
     window.scale.removeScaleListener(scaleInterface);
     window.validation.cleanValidation(uploadForm);
     window.filter.removeFilterClickHandler(effectsList);
-    window.filterControlInterface.removeControlListener(effectLevelInterface);
+    window.filterControlInterface.removeControlListener();
     setSetupToInitial();
   };
 
@@ -99,12 +101,14 @@
 
   var hideEffectInterface = function () {
     effectLevelInterface.classList.add('hidden');
-    window.filterControlInterface.removeControlListener(effectLevelInterface);
+    window.filterControlInterface.removeControlListener();
   };
 
   var updateEffectInterface = function (effect) {
-    window.filterControlInterface.removeControlListener(effectLevelInterface);
-    window.filterControlInterface.handleEffectInterface(effectLevelInterface, effect, setEffectValue);
+    effectLevelInput.value = Filter[effect].MAX;
+    window.filterControlInterface.setInterfaceCondition(effectLevelInterface);
+    window.filterControlInterface.removeControlListener();
+    window.filterControlInterface.handleEffectInterface(effect, setEffectValue);
   };
 
   // функция, обрабатывающая поведение контрола уровня эффекта
@@ -114,7 +118,6 @@
     } else {
       if (effectLevelInterface.classList.contains('hidden')) {
         effectLevelInterface.classList.remove('hidden');
-        window.filterControlInterface.checkInterfaceCondition(effectLevelInterface);
       }
       updateEffectInterface(effect);
     }
@@ -149,15 +152,9 @@
     }
     effectLevelInterface.classList.add('hidden');
     window.filter.addFilterClickHandler(effectsList, handleImageEffect);
+    effectLevelInput.value = '';
   };
 
-  // понадобится для установки значения при переключении эффекта
-  // var setEffectValueToInitial = function () {
-  //   effectControl.style.left = effectInterfaceParams.controlMaxCoordinate;
-  //   effectLevelStripe.style.width = '100%';
-  //   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
-  //   effectLevelInput.value = Filter[currentEffectValue].MAX;
-  // };
   window.imageSetup = {
     uploadInputChangeHandler: uploadInputChangeHandler,
   };
