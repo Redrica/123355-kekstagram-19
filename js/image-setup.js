@@ -62,6 +62,8 @@
     effectLevelInput.value = '';
     hashtagInput.value = '';
     descriptionInput.value = '';
+    loadedPicture.style.filter = '';
+    loadedPicture.style.transform = '';
     // TODO: проверить, все ли чистится при закрытии заполненной, но не отправленной формы
   };
 
@@ -103,6 +105,7 @@
   };
 
   var updateEffectInterface = function (effect) {
+    effectLevelInput.value = Filter[effect].MAX;
     window.filterControlInterface.removeControlListener(effectLevelInterface);
     window.filterControlInterface.handleEffectInterface(effectLevelInterface, effect, setEffectValue);
   };
@@ -114,7 +117,6 @@
     } else {
       if (effectLevelInterface.classList.contains('hidden')) {
         effectLevelInterface.classList.remove('hidden');
-        window.filterControlInterface.checkInterfaceCondition(effectLevelInterface);
       }
       updateEffectInterface(effect);
     }
@@ -149,15 +151,9 @@
     }
     effectLevelInterface.classList.add('hidden');
     window.filter.addFilterClickHandler(effectsList, handleImageEffect);
+    effectLevelInput.value = '';
   };
 
-  // понадобится для установки значения при переключении эффекта
-  // var setEffectValueToInitial = function () {
-  //   effectControl.style.left = effectInterfaceParams.controlMaxCoordinate;
-  //   effectLevelStripe.style.width = '100%';
-  //   var currentEffectValue = document.querySelector('.effects-radio:checked').value;
-  //   effectLevelInput.value = Filter[currentEffectValue].MAX;
-  // };
   window.imageSetup = {
     uploadInputChangeHandler: uploadInputChangeHandler,
   };

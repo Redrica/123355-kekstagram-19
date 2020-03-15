@@ -2,53 +2,89 @@
 
 (function () {
   var effectInterfaceParams = {
-    fullValue: 0,
     controlWidth: 0,
-    CONTROL_MIN_COORDINATE: '0px',
+    CONTROL_MIN_COORDINATE: 0,
     controlMaxCoordinate: 0,
     initial: true,
   };
+  var effectControlMousedownHandler;
 
-  var checkInterfaceCondition = function (controlInterface) {
+  var setInterfaceCondition = function (controlElement, effectLevelFull, effectLevelLine) {
     if (effectInterfaceParams.initial) {
-      getInitialInterfaceParams(controlInterface);
+      getInitialInterfaceParams(controlElement, effectLevelFull);
     }
+    effectLevelLine.style.width = effectInterfaceParams.controlMaxCoordinate + 'px';
+    controlElement.style.left = effectInterfaceParams.controlMaxCoordinate + 'px';
   };
 
-  var getInitialInterfaceParams = function (controlInterface) {
-    var effectLevelFull = controlInterface.querySelector('.effect-level__line');
-    var effectControl = controlInterface.querySelector('.effect-level__pin');
-    effectInterfaceParams.fullValue = effectLevelFull.offsetWidth;
-    effectInterfaceParams.controlWidth = effectControl.offsetWidth;
-    effectInterfaceParams.controlMaxCoordinate = effectInterfaceParams.fullValue + 'px';
+  var getInitialInterfaceParams = function (controlElement, effectLevelFull) {
+    effectInterfaceParams.controlWidth = controlElement.offsetWidth;
+    effectInterfaceParams.controlMaxCoordinate = effectLevelFull.offsetWidth;
     effectInterfaceParams.initial = false;
   };
 
-  var effectControlMouseupHandler;
-
   var handleEffectInterface = function (controlInterface, effect, callback) {
-    if (effectInterfaceParams.initial) {
-      getInitialInterfaceParams(controlInterface);
-    }
-
     var controlElement = controlInterface.querySelector('.effect-level__pin');
+    var effectLevelFull = controlInterface.querySelector('.effect-level__line');
+    var effectLevelLine = controlInterface.querySelector('.effect-level__depth');
 
-    effectControlMouseupHandler = function () {
-      var controlFractionValue = (controlElement.offsetLeft / effectInterfaceParams.fullValue).toFixed(2);
-      callback(effect, controlFractionValue);
+    setInterfaceCondition(controlElement, effectLevelFull, effectLevelLine);
+
+    effectControlMousedownHandler = function (evt) {
+      evt.preventDefault();
+      var startCoordinates = {
+        x: evt.clientX,
+        y: evt.clientY,
+      };
+
+      var documentMouseMoveHandler = function (moveEvent) {
+        moveEvent.preventDefault();
+
+        var shift = {
+          x: startCoordinates.x - moveEvent.clientX,
+          y: startCoordinates.y,
+        };
+
+        startCoordinates.x = moveEvent.clientX;
+
+        var getCoordinateX = function () {
+          var currentX = controlElement.offsetLeft - shift.x;
+
+          if (currentX > effectInterfaceParams.controlMaxCoordinate) {
+            return effectInterfaceParams.controlMaxCoordinate;
+          } else if (currentX < effectInterfaceParams.CONTROL_MIN_COORDINATE) {
+            return effectInterfaceParams.CONTROL_MIN_COORDINATE;
+          }
+
+          return currentX;
+        };
+
+        var currentX = getCoordinateX();
+
+        controlElement.style.left = currentX + 'px';
+        var controlFractionValue = (currentX / effectInterfaceParams.controlMaxCoordinate).toFixed(2);
+        callback(effect, controlFractionValue);
+      };
+
+      var documentMouseUpHandler = function (upEvent) {
+        upEvent.preventDefault();
+        document.removeEventListener('mousemove', documentMouseMoveHandler);
+        document.removeEventListener('mouseup', documentMouseUpHandler);
+      };
+
+      document.addEventListener('mousemove', documentMouseMoveHandler);
+      document.addEventListener('mouseup', documentMouseUpHandler);
     };
 
-    controlElement.addEventListener('mouseup', effectControlMouseupHandler);
+    controlElement.addEventListener('mousedown', effectControlMousedownHandler);
   };
 
   var removeControlListener = function (controlInterface) {
     var controlElement = controlInterface.querySelector('.effect-level__pin');
-    controlElement.removeEventListener('mouseup', effectControlMouseupHandler);
+    controlElement.removeEventListener('mousedown', effectControlMousedownHandler);
   };
 
   window.filterControlInterface = {
-    checkInterfaceCondition: checkInterfaceCondition,
-    getInitialInterfaceParams: getInitialInterfaceParams,
     handleEffectInterface: handleEffectInterface,
     removeControlListener: removeControlListener,
   };

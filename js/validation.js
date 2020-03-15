@@ -144,7 +144,6 @@
     var commentInput = form.querySelector('.text__description');
 
     submitFormHandler = function (evt) {
-      evt.preventDefault();
 
       var hashtags = window.util.getValuesArray(hashtagInput);
       var hashtagsErrors = checkHashtags(hashtags);
