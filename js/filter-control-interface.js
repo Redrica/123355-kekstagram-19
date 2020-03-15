@@ -1,9 +1,6 @@
 'use strict';
 
 (function () {
-  var effectLevelFull;
-  var effectLevelLine;
-  var controlElement;
   var effectInterfaceParams = {
     controlWidth: 0,
     CONTROL_MIN_COORDINATE: 0,
@@ -12,24 +9,26 @@
   };
   var effectControlMousedownHandler;
 
-  var setInterfaceCondition = function (controlInterface) {
+  var setInterfaceCondition = function (controlElement, effectLevelFull, effectLevelLine) {
     if (effectInterfaceParams.initial) {
-      getInitialInterfaceParams(controlInterface);
+      getInitialInterfaceParams(controlElement, effectLevelFull);
     }
     effectLevelLine.style.width = effectInterfaceParams.controlMaxCoordinate + 'px';
     controlElement.style.left = effectInterfaceParams.controlMaxCoordinate + 'px';
   };
 
-  var getInitialInterfaceParams = function (controlInterface) {
-    effectLevelFull = controlInterface.querySelector('.effect-level__line');
-    controlElement = controlInterface.querySelector('.effect-level__pin');
-    effectLevelLine = controlInterface.querySelector('.effect-level__depth');
+  var getInitialInterfaceParams = function (controlElement, effectLevelFull) {
     effectInterfaceParams.controlWidth = controlElement.offsetWidth;
     effectInterfaceParams.controlMaxCoordinate = effectLevelFull.offsetWidth;
     effectInterfaceParams.initial = false;
   };
 
-  var handleEffectInterface = function (effect, callback) {
+  var handleEffectInterface = function (controlInterface, effect, callback) {
+    var controlElement = controlInterface.querySelector('.effect-level__pin');
+    var effectLevelFull = controlInterface.querySelector('.effect-level__line');
+    var effectLevelLine = controlInterface.querySelector('.effect-level__depth');
+
+    setInterfaceCondition(controlElement, effectLevelFull, effectLevelLine);
 
     effectControlMousedownHandler = function (evt) {
       evt.preventDefault();
@@ -80,12 +79,12 @@
     controlElement.addEventListener('mousedown', effectControlMousedownHandler);
   };
 
-  var removeControlListener = function () {
+  var removeControlListener = function (controlInterface) {
+    var controlElement = controlInterface.querySelector('.effect-level__pin');
     controlElement.removeEventListener('mousedown', effectControlMousedownHandler);
   };
 
   window.filterControlInterface = {
-    setInterfaceCondition: setInterfaceCondition,
     handleEffectInterface: handleEffectInterface,
     removeControlListener: removeControlListener,
   };

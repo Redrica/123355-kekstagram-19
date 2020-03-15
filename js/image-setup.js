@@ -77,7 +77,7 @@
     window.scale.removeScaleListener(scaleInterface);
     window.validation.cleanValidation(uploadForm);
     window.filter.removeFilterClickHandler(effectsList);
-    window.filterControlInterface.removeControlListener();
+    window.filterControlInterface.removeControlListener(effectLevelInterface);
     setSetupToInitial();
   };
 
@@ -101,14 +101,13 @@
 
   var hideEffectInterface = function () {
     effectLevelInterface.classList.add('hidden');
-    window.filterControlInterface.removeControlListener();
+    window.filterControlInterface.removeControlListener(effectLevelInterface);
   };
 
   var updateEffectInterface = function (effect) {
     effectLevelInput.value = Filter[effect].MAX;
-    window.filterControlInterface.setInterfaceCondition(effectLevelInterface);
-    window.filterControlInterface.removeControlListener();
-    window.filterControlInterface.handleEffectInterface(effect, setEffectValue);
+    window.filterControlInterface.removeControlListener(effectLevelInterface);
+    window.filterControlInterface.handleEffectInterface(effectLevelInterface, effect, setEffectValue);
   };
 
   // функция, обрабатывающая поведение контрола уровня эффекта
