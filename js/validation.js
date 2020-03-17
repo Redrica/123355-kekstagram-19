@@ -142,6 +142,7 @@
   var addSubmitListener = function (form) {
     var hashtagInput = form.querySelector('.text__hashtags');
     var commentInput = form.querySelector('.text__description');
+    var data = new FormData(form);
 
     submitFormHandler = function (evt) {
 
@@ -162,9 +163,15 @@
         }
       }
 
-      if (errorExist) {
-        evt.preventDefault();
+      if (!errorExist) {
+        var uploadForm = form;
+        console.log(data);
+        window.backend.uploadData(new FormData(uploadForm), function (response) {
+          console.log(response);
+        });
       }
+
+      evt.preventDefault();
     };
 
     form.addEventListener('submit', submitFormHandler);
