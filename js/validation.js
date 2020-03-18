@@ -81,33 +81,8 @@
     return error;
   };
 
-  var inputFocusHandler;
-
-  var handleValidationError = function (evt, input, errorsArray) {
-    window.validationError.setErrorCondition(input, errorsArray);
-
-    inputFocusHandler = function (inputElement) {
-      inputElement = input;
-      window.validationError.cleanError(inputElement);
-    };
-
-    input.addEventListener('focus', inputFocusHandler);
-  };
-
-  var cleanValidation = function (form, formHandler) {
-    var hashtagInput = form.querySelector('.text__hashtags');
-    var commentInput = form.querySelector('.text__description');
-
-    form.removeEventListener('submit', formHandler);
-    hashtagInput.removeEventListener('focus', inputFocusHandler);
-    commentInput.removeEventListener('focus', inputFocusHandler);
-    window.validationError.cleanError();
-  };
-
   window.validation = {
     checkHashtags: checkHashtags,
     checkComment: checkComment,
-    handleValidationError: handleValidationError,
-    cleanValidation: cleanValidation,
   };
 })();

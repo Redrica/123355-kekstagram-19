@@ -58,6 +58,7 @@
   var currentEffect;
 
   var setSetupToInitial = function () {
+    // TODO: reset()
     loadedPicture.classList.remove(EFFECT_CLASS_SUBSTRING + currentEffect);
     uploadInput.value = '';
     effectLevelInput.value = '';
@@ -76,7 +77,10 @@
     hashtagInput.removeEventListener('keydown', window.util.escapeStopPropagationHandler);
     descriptionInput.removeEventListener('keydown', window.util.escapeStopPropagationHandler);
     window.scale.removeScaleListener(scaleInterface);
-    window.validation.cleanValidation(uploadForm, formSubmitHandler);
+    uploadForm.removeEventListener('submit', formSubmitHandler);
+
+    window.validationError.cleanErrorsHandling(uploadForm);
+
     window.filter.removeFilterClickHandler(effectsList);
     window.filterControlInterface.removeControlListener(effectLevelInterface);
     setSetupToInitial();
@@ -138,6 +142,16 @@
     loadedPicture.style.transform = 'scale(' + scale / PERCENT_FACTOR + ')';
   };
 
+  var onSuccessUpload = function () {
+    imageSetup.classList.add('hidden');
+    window.requestResponse.setResponseCondition(null, null);
+  };
+
+  var onErrorUpload = function (errorText, buttonText) {
+    window.requestResponse.setResponseCondition(errorText, buttonText);
+    closeSetup();
+  };
+
   var formSubmitHandler = function (evt) {
     var hashtags = window.util.getValuesArray(hashtagInput);
     var hashtagsErrors = window.validation.checkHashtags(hashtags);
@@ -145,15 +159,19 @@
     var errorExist = false;
 
     if (hashtagsErrors.length > 0) {
-      window.validation.handleValidationError(evt, hashtagInput, hashtagsErrors);
+      window.validationError.handleValidationError(evt, hashtagInput, hashtagsErrors);
       errorExist = true;
     }
 
     if (commentError) {
-      window.validation.handleValidationError(evt, commentInput, commentError);
+      window.validationError.handleValidationError(evt, commentInput, commentError);
       if (!errorExist) {
         errorExist = true;
       }
+    }
+
+    if (!errorExist) {
+      window.backend.uploadData(new FormData(uploadForm), onSuccessUpload, onErrorUpload);
     }
 
     evt.preventDefault();

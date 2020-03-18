@@ -15,7 +15,7 @@
     picturesPlace.appendChild(window.render.renderPictures(picturesDataLoaded));
   };
 
-  window.backend.makeDataRequest(onLoadRenderPictures, window.util.onErrorMessage);
+  window.backend.loadData(onLoadRenderPictures, window.requestResponse.setResponseCondition);
 
   var closeFullPicture = function () {
     fullPicture.classList.add('hidden');
