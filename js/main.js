@@ -21,6 +21,7 @@
     fullPicture.classList.add('hidden');
     fullPictureButtonClose.removeEventListener('click', closeFullPicture);
     document.removeEventListener('keydown', fullPictureEscKeypressHandler);
+    document.body.classList.remove('modal-open');
   };
 
   var closeFullPictureClickHandler = function () {
@@ -31,6 +32,13 @@
     window.util.isEscapeEvent(evt, closeFullPicture);
   };
 
+  var showFullPicture = function (index) {
+    window.render.renderFullPicture(fullPicture, picturesDataLoaded[index]);
+    fullPictureButtonClose.addEventListener('click', closeFullPictureClickHandler);
+    document.addEventListener('keydown', fullPictureEscKeypressHandler);
+    document.body.classList.add('modal-open');
+  };
+
   var picturesClickHandler = function (evt) {
     if (evt.target.classList.contains('picture__img')) {
       evt.preventDefault();
@@ -39,13 +47,19 @@
         target = target.parentNode;
       }
       var index = target.dataset.index;
-      window.render.renderFullPicture(fullPicture, picturesDataLoaded[index]);
-      fullPictureButtonClose.addEventListener('click', closeFullPictureClickHandler);
-      document.addEventListener('keydown', fullPictureEscKeypressHandler);
+      showFullPicture(index);
+    }
+  };
+
+  var picturesEscKeypressHandler = function (evt) {
+    if (evt.key === window.util.Key.ENTER && evt.target.classList.contains('picture')) {
+      var index = evt.target.dataset.index;
+      showFullPicture(index);
     }
   };
 
   picturesPlace.addEventListener('click', picturesClickHandler);
+  picturesPlace.addEventListener('keydown', picturesEscKeypressHandler);
   uploadInput.addEventListener('change', window.imageSetup.uploadInputChangeHandler);
 
   // ////////////

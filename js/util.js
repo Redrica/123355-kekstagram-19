@@ -1,16 +1,19 @@
 'use strict';
 
 (function () {
-  var ESCAPE_KEY = 'Escape';
+  var Key = {
+    ESCAPE: 'Escape',
+    ENTER: 'Enter',
+  };
 
   var isEscapeEvent = function (evt, action) {
-    if (evt.key === ESCAPE_KEY) {
+    if (evt.key === Key.ESCAPE) {
       action();
     }
   };
 
   var escapeStopPropagationHandler = function (evt) {
-    if (evt.key === ESCAPE_KEY) {
+    if (evt.key === Key.ESCAPE) {
       evt.stopPropagation();
     }
   };
@@ -51,6 +54,7 @@
   }
 
   window.util = {
+    Key: Key,
     isEscapeEvent: isEscapeEvent,
     escapeStopPropagationHandler: escapeStopPropagationHandler,
     getRandomNumber: getRandomNumber,
