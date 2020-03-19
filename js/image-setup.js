@@ -81,8 +81,8 @@
 
     window.validationError.cleanErrorsHandling(uploadForm);
 
-    window.filter.removeFilterClickHandler(effectsList);
-    window.filterControlInterface.removeControlListener(effectLevelInterface);
+    window.effect.removeFilterClickHandler(effectsList);
+    window.effectControlInterface.removeControlListener(effectLevelInterface);
     setSetupToInitial();
   };
 
@@ -106,13 +106,13 @@
 
   var hideEffectInterface = function () {
     effectLevelInterface.classList.add('hidden');
-    window.filterControlInterface.removeControlListener(effectLevelInterface);
+    window.effectControlInterface.removeControlListener(effectLevelInterface);
   };
 
   var updateEffectInterface = function (effect) {
     effectLevelInput.value = Filter[effect].MAX;
-    window.filterControlInterface.removeControlListener(effectLevelInterface);
-    window.filterControlInterface.handleEffectInterface(effectLevelInterface, effect, setEffectValue);
+    window.effectControlInterface.removeControlListener(effectLevelInterface);
+    window.effectControlInterface.handleEffectInterface(effectLevelInterface, effect, setEffectValue);
   };
 
   // функция, обрабатывающая поведение контрола уровня эффекта
@@ -190,7 +190,7 @@
       uploadForm.setAttribute('action', FORM_ACTION);
     }
     effectLevelInterface.classList.add('hidden');
-    window.filter.addFilterClickHandler(effectsList, handleImageEffect);
+    window.effect.addFilterClickHandler(effectsList, handleImageEffect);
     effectLevelInput.value = '';
   };
 

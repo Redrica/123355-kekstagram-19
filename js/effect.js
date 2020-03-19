@@ -19,7 +19,7 @@
     filterGroup.removeEventListener('click', effectListClickHandler);
   };
 
-  window.filter = {
+  window.effect = {
     addFilterClickHandler: addFilterClickHandler,
     removeFilterClickHandler: removeFilterClickHandler,
   };
