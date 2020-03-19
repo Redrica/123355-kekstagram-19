@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-  var ERROR_STYLE = 'width: 450px; margin: -10px auto 10px; text-transform: none; text-align: left; color: crimson';
-  var TEXTAREA_ERROR_GAP = '8px';
   var COMMENT_MAX_LENGTH = 140;
   var ErrorMessage = {
     QUANTITY_LIMIT: 'Можно задать не более пяти хэштегов.',
@@ -20,8 +18,6 @@
     FIRST_SYMBOL: '#',
     REG_EXP: /^#?[а-яёa-z\d]+$/,
   };
-
-  var submitFormHandler;
 
   var addError = function (errorsArray, error) {
     if (errorsArray.indexOf(error) === -1) {
@@ -85,103 +81,8 @@
     return error;
   };
 
-  var createErrorMessage = function (input) {
-    var errorMessage = document.createElement('p');
-    errorMessage.classList.add('text__error');
-    errorMessage.dataset.error = input.name;
-    errorMessage.style.cssText = ERROR_STYLE;
-
-    if (input.tagName === 'INPUT') {
-      input.parentElement.insertBefore(errorMessage, input.nextSibling);
-    } else {
-      errorMessage.style.marginTop = TEXTAREA_ERROR_GAP;
-      input.parentElement.appendChild(errorMessage);
-    }
-  };
-
-  var setErrorCondition = function (input, errors) {
-    if (!document.querySelector('[data-error=' + input.name + ']')) {
-      createErrorMessage(input);
-    }
-    var errorMessage = document.querySelector('[data-error=' + input.name + ']');
-
-    if (errors && typeof errors === 'string') {
-      errorMessage.textContent = errors;
-    } else {
-      errorMessage.textContent = errors.join(' ');
-    }
-  };
-
-  var cleanError = function (input) {
-    if (input) {
-      var errorMessage = document.querySelector('[data-error=' + input.name + ']');
-      if (errorMessage) {
-        errorMessage.textContent = '';
-      }
-    } else {
-      var errorMessages = document.querySelectorAll('.text__error');
-      Array.from(errorMessages).forEach(function (it) {
-        it.textContent = '';
-      });
-    }
-  };
-
-  var inputFocusHandler;
-
-  var handleValidationError = function (evt, input, errorsArray) {
-    setErrorCondition(input, errorsArray);
-
-    inputFocusHandler = function (inputElement) {
-      inputElement = input;
-      cleanError(inputElement);
-    };
-
-    input.addEventListener('focus', inputFocusHandler);
-  };
-
-  var addSubmitListener = function (form) {
-    var hashtagInput = form.querySelector('.text__hashtags');
-    var commentInput = form.querySelector('.text__description');
-
-    submitFormHandler = function (evt) {
-
-      var hashtags = window.util.getValuesArray(hashtagInput);
-      var hashtagsErrors = checkHashtags(hashtags);
-      var commentError = checkComment(commentInput.value);
-      var errorExist = false;
-
-      if (hashtagsErrors.length > 0) {
-        handleValidationError(evt, hashtagInput, hashtagsErrors);
-        errorExist = true;
-      }
-
-      if (commentError) {
-        handleValidationError(evt, commentInput, commentError);
-        if (!errorExist) {
-          errorExist = true;
-        }
-      }
-
-      if (errorExist) {
-        evt.preventDefault();
-      }
-    };
-
-    form.addEventListener('submit', submitFormHandler);
-  };
-
-  var cleanValidation = function (form) {
-    var hashtagInput = form.querySelector('.text__hashtags');
-    var commentInput = form.querySelector('.text__description');
-
-    form.removeEventListener('submit', submitFormHandler);
-    hashtagInput.removeEventListener('focus', inputFocusHandler);
-    commentInput.removeEventListener('focus', inputFocusHandler);
-    cleanError();
-  };
-
   window.validation = {
-    addSubmitListener: addSubmitListener,
-    cleanValidation: cleanValidation,
+    checkHashtags: checkHashtags,
+    checkComment: checkComment,
   };
 })();

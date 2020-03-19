@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var PICTURS_QUANTITY = 25;
   var picturesPlace = document.querySelector('.pictures');
   var fullPicture = document.querySelector('.big-picture');
   var fullPictureButtonClose = fullPicture.querySelector('.big-picture__cancel');
@@ -9,8 +8,14 @@
   var commentsLoader = fullPicture.querySelector('.comments-loader');
   var uploadInput = document.querySelector('#upload-file');
 
-  var picturesGenerated = window.generation.generatePictures(PICTURS_QUANTITY);
-  picturesPlace.appendChild(window.render.renderPictures(picturesGenerated));
+  var picturesDataLoaded;
+
+  var onLoadRenderPictures = function (data) {
+    picturesDataLoaded = data;
+    picturesPlace.appendChild(window.render.renderPictures(picturesDataLoaded));
+  };
+
+  window.backend.loadData(onLoadRenderPictures, window.requestResponse.setResponseCondition);
 
   var closeFullPicture = function () {
     fullPicture.classList.add('hidden');
@@ -34,7 +39,7 @@
         target = target.parentNode;
       }
       var index = target.dataset.index;
-      window.render.renderFullPicture(fullPicture, picturesGenerated[index]);
+      window.render.renderFullPicture(fullPicture, picturesDataLoaded[index]);
       fullPictureButtonClose.addEventListener('click', closeFullPictureClickHandler);
       document.addEventListener('keydown', fullPictureEscKeypressHandler);
     }
