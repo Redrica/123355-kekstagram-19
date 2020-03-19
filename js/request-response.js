@@ -6,6 +6,10 @@
     ERROR: 'error',
     SUCCESS: 'success',
   };
+  var ButtonText = {
+    'load': 'Закрыть',
+    'upload': 'Попробуйте еще раз',
+  };
   var messageType;
 
   var closePopup = function () {
@@ -29,8 +33,8 @@
     }
   };
 
-  var setResponseCondition = function (errorMessage, closeButtonText) {
-    messageType = (errorMessage && closeButtonText) ? RequestResponse.ERROR : RequestResponse.SUCCESS;
+  var setResponseCondition = function (errorMessage, requestType) {
+    messageType = (errorMessage && requestType) ? RequestResponse.ERROR : RequestResponse.SUCCESS;
 
     var messageElement = document.querySelector('#' + messageType + '').content.querySelector('.' + messageType + '').cloneNode(true);
 
@@ -40,7 +44,7 @@
 
       messageText.style.lineHeight = ERROR_STYLE_LINE_HEIGHT;
       messageText.textContent = errorMessage;
-      messageButton.textContent = closeButtonText;
+      messageButton.textContent = ButtonText[requestType];
     }
 
     document.body.appendChild(messageElement);

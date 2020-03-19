@@ -23,12 +23,12 @@
     TIMEOUT: 'Запрос не успел выполниться за ',
   };
 
-  var ButtonText = {
-    LOAD: 'Закрыть',
-    UPLOAD: 'Попробуйте еще раз',
+  var RequestType = {
+    LOAD: 'load',
+    UPLOAD: 'upload',
   };
 
-  var handleRequestStatus = function (xhr, onSuccessResponse, onError, closeButtonText) {
+  var handleRequestStatus = function (xhr, onSuccessResponse, onError, requestType) {
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
@@ -37,26 +37,26 @@
       } else {
         switch (xhr.status) {
           case Code.BAD_REQUEST:
-            onError(ErrorMessage.BAD_REQUEST, closeButtonText);
+            onError(ErrorMessage.BAD_REQUEST, requestType);
             break;
           case Code.UNAUTHORIZED:
-            onError(ErrorMessage.UNAUTHORIZED, closeButtonText);
+            onError(ErrorMessage.UNAUTHORIZED, requestType);
             break;
           case Code.NOT_FOUND:
-            onError(ErrorMessage.NOT_FOUND, closeButtonText);
+            onError(ErrorMessage.NOT_FOUND, requestType);
             break;
           default:
-            onError((ErrorMessage.DEFAULT + xhr.status + ' ' + xhr.statusText), closeButtonText);
+            onError((ErrorMessage.DEFAULT + xhr.status + ' ' + xhr.statusText), requestType);
         }
       }
     });
 
     xhr.addEventListener('error', function () {
-      onError(ErrorMessage.EVENT_ERROR, closeButtonText);
+      onError(ErrorMessage.EVENT_ERROR, requestType);
     });
 
     xhr.addEventListener('timeout', function () {
-      onError((ErrorMessage.TIMEOUT + xhr.timeout + 'мс'), closeButtonText);
+      onError((ErrorMessage.TIMEOUT + xhr.timeout + 'мс'), requestType);
     });
 
     xhr.timeout = TIMEOUT_LOAD;
@@ -64,18 +64,18 @@
 
   var loadData = function (onSuccessResponse, onError) {
     var xhr = new XMLHttpRequest();
-    var closeButtonText = ButtonText.LOAD;
+    var requestType = RequestType.LOAD;
 
-    handleRequestStatus(xhr, onSuccessResponse, onError, closeButtonText);
+    handleRequestStatus(xhr, onSuccessResponse, onError, requestType);
     xhr.open('GET', Url.GET_PICTURES_DATA);
     xhr.send();
   };
 
   var uploadData = function (data, onSuccessResponse, onError) {
     var xhr = new XMLHttpRequest();
-    var closeButtonText = ButtonText.UPLOAD;
+    var requestType = RequestType.UPLOAD;
 
-    handleRequestStatus(xhr, onSuccessResponse, onError, closeButtonText);
+    handleRequestStatus(xhr, onSuccessResponse, onError, requestType);
     xhr.open('POST', Url.POST_PICTURE_DATA);
     xhr.send(data);
   };
