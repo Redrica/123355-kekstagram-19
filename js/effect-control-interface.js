@@ -84,7 +84,7 @@
     controlElement.removeEventListener('mousedown', effectControlMousedownHandler);
   };
 
-  window.filterControlInterface = {
+  window.effectControlInterface = {
     handleEffectInterface: handleEffectInterface,
     removeControlListener: removeControlListener,
   };
