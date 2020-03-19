@@ -24,6 +24,19 @@
     return Math.round(Math.random() * (max - minNumber)) + minNumber;
   };
 
+  // перемешивание массива
+  var shuffleArray = function (array) {
+    var j;
+    var temp;
+    for (var i = array.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      temp = array[j];
+      array[j] = array[i];
+      array[i] = temp;
+    }
+    return array;
+  };
+
   // функция, возвращающая пропорциональное значение в заданном интервале
   var getCustomIntervalValue = function (minValue, maxValue, fractionValue) {
     var interval = maxValue - minValue;

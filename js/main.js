@@ -7,15 +7,17 @@
   var commentCount = fullPicture.querySelector('.social__comment-count');
   var commentsLoader = fullPicture.querySelector('.comments-loader');
   var uploadInput = document.querySelector('#upload-file');
+  var filters = document.querySelector('.img-filters');
 
   var picturesDataLoaded;
 
-  var onLoadRenderPictures = function (data) {
+  var onSuccessLoadData = function (data) {
     picturesDataLoaded = data;
     picturesPlace.appendChild(window.render.renderPictures(picturesDataLoaded));
+    window.filter.initializeFilter(filters);
   };
 
-  window.backend.loadData(onLoadRenderPictures, window.requestResponse.setResponseCondition);
+  window.backend.loadData(onSuccessLoadData, window.requestResponse.setResponseCondition);
 
   var closeFullPicture = function () {
     fullPicture.classList.add('hidden');
