@@ -21,25 +21,29 @@
   // получение случайного целого числа от min до max
   var getRandomNumber = function (max, min) {
     var minNumber = min ? min : 0;
+
     return Math.round(Math.random() * (max - minNumber)) + minNumber;
   };
 
   // перемешивание массива
-  var shuffleArray = function (array) {
+  var shuffleArray = function (array, resultArrayLength) {
+    var counter = resultArrayLength < array.length ? resultArrayLength : array.length - 1;
     var j;
     var temp;
-    for (var i = array.length - 1; i > 0; i--) {
-      j = Math.floor(Math.random() * (i + 1));
+    for (var i = 0; i < counter; i++) {
+      j = Math.floor(Math.random() * (array.length - 1));
       temp = array[j];
       array[j] = array[i];
       array[i] = temp;
     }
+
     return array;
   };
 
   // функция, возвращающая пропорциональное значение в заданном интервале
   var getCustomIntervalValue = function (minValue, maxValue, fractionValue) {
     var interval = maxValue - minValue;
+
     return fractionValue * interval + minValue;
   };
 
@@ -63,6 +67,7 @@
     if (input.value === '') {
       return [];
     }
+
     return input.value.toLowerCase().split(/\s+/);
   }
 
@@ -74,5 +79,6 @@
     getCustomIntervalValue: getCustomIntervalValue,
     changeValue: changeValue,
     getValuesArray: getValuesArray,
+    shuffleArray: shuffleArray,
   };
 })();

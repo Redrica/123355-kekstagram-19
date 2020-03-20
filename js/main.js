@@ -11,10 +11,30 @@
 
   var picturesDataLoaded;
 
+  var removePictures = function () {
+    while (picturesPlace.lastElementChild.classList.contains('picture')) {
+      picturesPlace.removeChild(picturesPlace.lastElementChild);
+    }
+  };
+
+  var showPictures = function (picturesArray) {
+    if (picturesPlace.lastElementChild.classList.contains('picture')) {
+      removePictures();
+    }
+    picturesPlace.appendChild(window.render.renderPictures(picturesArray));
+  };
+
+  var updatePicturesData = function (picturesArray) {
+    picturesArray.forEach(function (picture, index) {
+      picture.id = index;
+    });
+    return picturesArray;
+  };
+
   var onSuccessLoadData = function (data) {
-    picturesDataLoaded = data;
-    picturesPlace.appendChild(window.render.renderPictures(picturesDataLoaded));
-    window.filter.initializeFilter(filters);
+    picturesDataLoaded = updatePicturesData(data);
+    showPictures(picturesDataLoaded);
+    window.filter.initializeFilter(filters, picturesDataLoaded, showPictures);
   };
 
   window.backend.loadData(onSuccessLoadData, window.requestResponse.setResponseCondition);

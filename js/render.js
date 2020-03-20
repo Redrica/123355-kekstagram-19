@@ -2,9 +2,9 @@
 
 (function () {
   // создаем сущность фотографии по объекту
-  var createPictureElement = function (picture, index) {
+  var createPictureElement = function (picture) {
     var pictureElement = document.querySelector('#picture').content.querySelector('.picture').cloneNode(true);
-    pictureElement.dataset.index = index;
+    pictureElement.dataset.index = picture.id;
     pictureElement.querySelector('.picture__img').src = picture.url;
     pictureElement.querySelector('.picture__likes').textContent = picture.likes;
     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length + '';
@@ -18,6 +18,7 @@
     for (var i = 0; i < picturesData.length; i++) {
       picturesFragment.appendChild(createPictureElement(picturesData[i], i));
     }
+
     return picturesFragment;
   };
 
