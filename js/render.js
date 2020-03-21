@@ -1,6 +1,14 @@
 'use strict';
 
 (function () {
+  var COMMENTS_PART_COUNT = 5;
+  var fullPicture = document.querySelector('.big-picture');
+  var commentsParentElement = fullPicture.querySelector('.social__comments');
+  var commentCount = fullPicture.querySelector('.social__comment-count');
+  var commentsLoader = fullPicture.querySelector('.comments-loader');
+  var pictureComments = [];
+  var shownCommentsCount;
+
   // создаем сущность фотографии по объекту
   var createPictureElement = function (picture) {
     var pictureElement = document.querySelector('#picture').content.querySelector('.picture').cloneNode(true);
@@ -44,27 +52,55 @@
     return commentFragment;
   };
 
-  // функция отрисовки блока комментариев
-  var renderComments = function (pictureElement, picture) {
+  // функция создания блока комментариев
+  var createCommentsFragment = function (comments) {
     var commentsFragment = document.createDocumentFragment();
-    for (var i = 0; i < picture.comments.length; i++) {
-      commentsFragment.appendChild(createCommentLayout(picture.comments[i]));
+    var commentsToCreate = comments.length > COMMENTS_PART_COUNT ? shownCommentsCount + COMMENTS_PART_COUNT : comments.length;
+    for (var i = shownCommentsCount; i < commentsToCreate; i++) {
+      commentsFragment.appendChild(createCommentLayout(comments[i]));
+      shownCommentsCount++;
+      if (shownCommentsCount === comments.length) {
+        break;
+      }
     }
 
-    var commentsParentElement = pictureElement.querySelector('.social__comments');
-    commentsParentElement.innerHTML = '';
-    commentsParentElement.appendChild(commentsFragment);
+    return commentsFragment;
+  };
+
+  var commentsLoaderClickHandler = function () {
+    commentsParentElement.appendChild(createCommentsFragment(pictureComments));
+
+    var shownComments = fullPicture.querySelectorAll('.social__comment');
+    if (shownComments.length === pictureComments.length) {
+      commentsLoader.classList.add('hidden');
+      commentsLoader.removeEventListener('click', commentsLoaderClickHandler);
+    }
   };
 
   // функция отрисовки полноразмерной фотографии со всеми причитающимися.
-  var renderFullPicture = function (pictureElement, picture) {
-    pictureElement.classList.remove('hidden');
-    pictureElement.querySelector('.big-picture__img img').src = picture.url;
-    pictureElement.querySelector('.likes-count').textContent = picture.likes;
-    pictureElement.querySelector('.comments-count').textContent = picture.comments.length.toString();
-    pictureElement.querySelector('.social__caption').textContent = picture.description;
+  var renderFullPicture = function (picture) {
+    fullPicture.classList.remove('hidden');
+    fullPicture.querySelector('.big-picture__img img').src = picture.url;
+    fullPicture.querySelector('.likes-count').textContent = picture.likes;
+    fullPicture.querySelector('.comments-count').textContent = picture.comments.length.toString();
+    fullPicture.querySelector('.social__caption').textContent = picture.description;
 
-    renderComments(pictureElement, picture);
+    commentsParentElement.innerHTML = '';
+    pictureComments = picture.comments;
+    shownCommentsCount = 0;
+
+    commentsParentElement.appendChild(createCommentsFragment(pictureComments));
+
+    if (picture.comments.length <= COMMENTS_PART_COUNT) {
+      commentsLoader.classList.add('hidden');
+    } else {
+      if (commentsLoader.classList.contains('hidden')) {
+        commentsLoader.classList.remove('hidden');
+      }
+      commentsLoader.addEventListener('click', commentsLoaderClickHandler);
+    }
+
+    commentCount.classList.add('hidden');
   };
 
   window.render = {

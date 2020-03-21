@@ -178,20 +178,23 @@
   };
 
   var uploadInputChangeHandler = function () {
-    imageSetup.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-    imageSetupClose.addEventListener('click', setupCloseClickHandler);
-    document.addEventListener('keydown', setupEscKeypressHandler);
-    hashtagInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
-    descriptionInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
-    window.scale.addScaleListener(scaleInterface, setImageScale);
-    uploadForm.addEventListener('submit', formSubmitHandler);
-    if (!uploadForm.getAttribute('action')) {
-      uploadForm.setAttribute('action', FORM_ACTION);
+    var validFile = window.uploadImage.processUploadPicture();
+    if (validFile) {
+      imageSetup.classList.remove('hidden');
+      document.body.classList.add('modal-open');
+      imageSetupClose.addEventListener('click', setupCloseClickHandler);
+      document.addEventListener('keydown', setupEscKeypressHandler);
+      hashtagInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
+      descriptionInput.addEventListener('keydown', window.util.escapeStopPropagationHandler);
+      window.scale.addScaleListener(scaleInterface, setImageScale);
+      uploadForm.addEventListener('submit', formSubmitHandler);
+      if (!uploadForm.getAttribute('action')) {
+        uploadForm.setAttribute('action', FORM_ACTION);
+      }
+      effectLevelInterface.classList.add('hidden');
+      window.effect.addFilterClickHandler(effectsList, handleImageEffect);
+      effectLevelInput.value = '';
     }
-    effectLevelInterface.classList.add('hidden');
-    window.effect.addFilterClickHandler(effectsList, handleImageEffect);
-    effectLevelInput.value = '';
   };
 
   window.imageSetup = {

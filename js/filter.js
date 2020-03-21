@@ -3,10 +3,10 @@
 (function () {
   var RANDOM_PICTURES_AMOUNT = 10;
   var FilterType = {
-    DEFAULT: 'filter-default',
     RANDOM_FIXED_QUANTITY: 'filter-random',
     DISCUSSED: 'filter-discussed',
   };
+  var filters = document.querySelector('.img-filters');
 
   var makeRandomPicturesArray = function (picturesArray, customLength) {
     var newPicturesArray = picturesArray.slice();
@@ -15,13 +15,13 @@
     return newPicturesArray.slice(0, customLength);
   };
 
-  var sortByComments = function (picturesArray) {
-    var newPicturesArray = picturesArray.slice();
-    newPicturesArray = newPicturesArray.sort(function (next, previous) {
+  var sortPicturesByComments = function (picturesArray) {
+    var sortedPicturesArray = picturesArray.slice();
+    sortedPicturesArray = sortedPicturesArray.sort(function (next, previous) {
       return previous.comments.length - next.comments.length;
     });
 
-    return newPicturesArray;
+    return sortedPicturesArray;
   };
 
   var changeActiveFilter = function (evt, activeFilter) {
@@ -32,14 +32,11 @@
   var filterPictures = function (picturesArray, filterType) {
     var filteredPictures;
     switch (filterType) {
-      case FilterType.DEFAULT:
-        filteredPictures = picturesArray;
-        break;
       case FilterType.RANDOM_FIXED_QUANTITY:
         filteredPictures = makeRandomPicturesArray(picturesArray, RANDOM_PICTURES_AMOUNT);
         break;
       case FilterType.DISCUSSED:
-        filteredPictures = sortByComments(picturesArray);
+        filteredPictures = sortPicturesByComments(picturesArray);
         break;
       default:
         filteredPictures = picturesArray;
@@ -48,24 +45,21 @@
     return filteredPictures;
   };
 
-  var filterBlockClickHandler;
+  var filterBlockClickHandler = window.debounce(function (evt) {
+    var activeFilterButton = filters.querySelector('.img-filters__button--active');
 
-  var initializeFilter = function (filterBlock, picturesArray, callback) {
+    if (evt.target.classList.contains('img-filters__button') && evt.target !== activeFilterButton) {
+      var filterType = evt.target.id;
+      changeActiveFilter(evt, activeFilterButton);
 
-    filterBlockClickHandler = function (evt) {
-      var activeFilterButton = filterBlock.querySelector('.img-filters__button--active');
+      var filteredPictures = filterPictures(window.main.picturesDataLoaded, filterType);
+      window.main.showPictures(filteredPictures);
+    }
+  });
 
-      if (evt.target.classList.contains('img-filters__button') && evt.target !== activeFilterButton) {
-        var filterType = evt.target.id;
-        changeActiveFilter(evt, activeFilterButton);
-
-        var filteredPictures = filterPictures(picturesArray, filterType);
-        callback(filteredPictures);
-      }
-    };
-
-    filterBlock.classList.remove('img-filters--inactive');
-    filterBlock.addEventListener('click', filterBlockClickHandler);
+  var initializeFilter = function () {
+    filters.classList.remove('img-filters--inactive');
+    filters.addEventListener('click', filterBlockClickHandler);
   };
 
   window.filter = {

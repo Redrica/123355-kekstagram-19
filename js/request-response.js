@@ -33,8 +33,12 @@
     }
   };
 
-  var setResponseCondition = function (errorMessage, requestType) {
-    messageType = (errorMessage && requestType) ? RequestResponse.ERROR : RequestResponse.SUCCESS;
+  var setResponseCondition = function (errorMessage, requestType, customError) {
+    if (!customError) {
+      messageType = (errorMessage && requestType) ? RequestResponse.ERROR : RequestResponse.SUCCESS;
+    } else {
+      messageType = customError.type;
+    }
 
     var messageElement = document.querySelector('#' + messageType + '').content.querySelector('.' + messageType + '').cloneNode(true);
 
@@ -43,8 +47,8 @@
       var messageButton = messageElement.querySelector('.' + messageType + '__button');
 
       messageText.style.lineHeight = ERROR_STYLE_LINE_HEIGHT;
-      messageText.textContent = errorMessage;
-      messageButton.textContent = ButtonText[requestType];
+      messageText.textContent = customError ? customError.message : errorMessage;
+      messageButton.textContent = customError ? customError.buttonText : ButtonText[requestType];
     }
 
     document.body.appendChild(messageElement);

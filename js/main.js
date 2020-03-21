@@ -4,12 +4,8 @@
   var picturesPlace = document.querySelector('.pictures');
   var fullPicture = document.querySelector('.big-picture');
   var fullPictureButtonClose = fullPicture.querySelector('.big-picture__cancel');
-  var commentCount = fullPicture.querySelector('.social__comment-count');
-  var commentsLoader = fullPicture.querySelector('.comments-loader');
   var uploadInput = document.querySelector('#upload-file');
-  var filters = document.querySelector('.img-filters');
-
-  var picturesDataLoaded;
+  var picturesDataLoaded = [];
 
   var removePictures = function () {
     while (picturesPlace.lastElementChild.classList.contains('picture')) {
@@ -33,8 +29,9 @@
 
   var onSuccessLoadData = function (data) {
     picturesDataLoaded = updatePicturesData(data);
+    window.main.picturesDataLoaded = picturesDataLoaded;
     showPictures(picturesDataLoaded);
-    window.filter.initializeFilter(filters, picturesDataLoaded, showPictures);
+    window.filter.initializeFilter();
   };
 
   window.backend.loadData(onSuccessLoadData, window.requestResponse.setResponseCondition);
@@ -55,7 +52,7 @@
   };
 
   var showFullPicture = function (index) {
-    window.render.renderFullPicture(fullPicture, picturesDataLoaded[index]);
+    window.render.renderFullPicture(picturesDataLoaded[index]);
     fullPictureButtonClose.addEventListener('click', closeFullPictureClickHandler);
     document.addEventListener('keydown', fullPictureEscKeypressHandler);
     document.body.classList.add('modal-open');
@@ -84,8 +81,8 @@
   picturesPlace.addEventListener('keydown', picturesEscKeypressHandler);
   uploadInput.addEventListener('change', window.imageSetup.uploadInputChangeHandler);
 
-  // ////////////
-  // временно по заданию
-  commentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+  window.main = {
+    picturesDataLoaded: picturesDataLoaded,
+    showPictures: showPictures,
+  };
 })();
