@@ -11,13 +11,13 @@
 
   var setInterfaceCondition = function (controlElement, effectLevelFull, effectLevelLine) {
     if (effectInterfaceParams.initial) {
-      getInitialInterfaceParams(controlElement, effectLevelFull);
+      getInitialInterfaceParameters(controlElement, effectLevelFull);
     }
     effectLevelLine.style.width = effectInterfaceParams.controlMaxCoordinate + 'px';
     controlElement.style.left = effectInterfaceParams.controlMaxCoordinate + 'px';
   };
 
-  var getInitialInterfaceParams = function (controlElement, effectLevelFull) {
+  var getInitialInterfaceParameters = function (controlElement, effectLevelFull) {
     effectInterfaceParams.controlWidth = controlElement.offsetWidth;
     effectInterfaceParams.controlMaxCoordinate = effectLevelFull.offsetWidth;
     effectInterfaceParams.initial = false;
@@ -62,6 +62,7 @@
         var currentX = getCoordinateX();
 
         controlElement.style.left = currentX + 'px';
+        effectLevelLine.style.width = currentX + 'px';
         var controlFractionValue = (currentX / effectInterfaceParams.controlMaxCoordinate).toFixed(2);
         callback(effect, controlFractionValue);
       };

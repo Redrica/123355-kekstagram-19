@@ -24,6 +24,7 @@
     picturesArray.forEach(function (picture, index) {
       picture.id = index;
     });
+
     return picturesArray;
   };
 

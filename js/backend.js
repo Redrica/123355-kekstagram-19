@@ -6,14 +6,12 @@
     GET_PICTURES_DATA: 'https://js.dump.academy/kekstagram/data',
     POST_PICTURE_DATA: 'https://js.dump.academy/kekstagram',
   };
-
   var Code = {
     SUCCESS: 200,
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
     NOT_FOUND: 404
   };
-
   var ErrorMessage = {
     BAD_REQUEST: 'Неверный запрос',
     UNAUTHORIZED: 'Пользователь не авторизован',
@@ -22,7 +20,6 @@
     EVENT_ERROR: 'Произошла ошибка соединения',
     TIMEOUT: 'Запрос не успел выполниться за ',
   };
-
   var RequestType = {
     LOAD: 'load',
     UPLOAD: 'upload',

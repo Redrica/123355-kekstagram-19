@@ -1,6 +1,10 @@
 'use strict';
 
 (function () {
+  var FORM_ACTION = 'https://js.dump.academy/kekstagram';
+  var PERCENT_FACTOR = 100;
+  var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
+  var NO_EFFECT = 'none';
   var Filter = {
     chrome: {
       NAME: 'chrome',
@@ -38,11 +42,6 @@
       UNIT: '',
     },
   };
-
-  var FORM_ACTION = 'https://js.dump.academy/kekstagram';
-  var PERCENT_FACTOR = 100;
-  var EFFECT_CLASS_SUBSTRING = 'effects__preview--';
-  var NO_EFFECT = 'none';
   var uploadForm = document.querySelector('.img-upload__form');
   var hashtagInput = uploadForm.querySelector('.text__hashtags');
   var commentInput = uploadForm.querySelector('.text__description');
@@ -78,9 +77,7 @@
     descriptionInput.removeEventListener('keydown', window.util.escapeStopPropagationHandler);
     window.scale.removeScaleListener(scaleInterface);
     uploadForm.removeEventListener('submit', formSubmitHandler);
-
     window.validationError.cleanErrorsHandling(uploadForm);
-
     window.effect.removeFilterClickHandler(effectsList);
     window.effectControlInterface.removeControlListener(effectLevelInterface);
     setSetupToInitial();
@@ -143,7 +140,7 @@
   };
 
   var onSuccessUpload = function () {
-    imageSetup.classList.add('hidden');
+    closeSetup();
     window.requestResponse.setResponseCondition(null, null);
   };
 
